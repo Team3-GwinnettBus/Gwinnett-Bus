@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
+  <!--link to map css for leaflet js api-->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+ <!--linking map js for leaflet js api-->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
     crossorigin=""></script>
+
+ <!--linking our own css file-->
 <link rel="stylesheet" href="css/style.css">
 
 <head>
+    <!-- set tab icon up top -->
     <link rel="icon" type="image/x-icon" href="../res//BusIcon.png">
+    <!-- set basic html stuff-->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- set tab title -->
     <title>GCPS Live Bus</title>
 </head>
 
@@ -20,22 +28,26 @@
     
     
     <main>
-        <div class="popup" id="codebox">
-           
-            <div class="content"></div>
-        </div>
+         <!-- map element for the leaflet api -->
         <div id="map"></div>
+          <!--panel below map holding buttons and all that -->
         <div id="main-info-panel">
+              <!-- div holding info  -->
             <div class="info">
+                  <!--  large title info-->
                 <span class="info_header">Timmy is 4 min away</span>
+                  <!-- smaller text below title-->
                 <p class="info__content">Timmy is currently  on board bus 14, and is on the way home.</p>
-                    <div class="buttonContainer">
-                        <button class="contact">Contact Driver</button>   
-                        <a href="https://github.com/Team3-GwinnettBus/Gwinnett-Bus" target="_blank"><button class="viewBackend" onclick="togglePopup()"> View BackEnd Code</button>   </a>
+                  <!-- container for buttons -->
+                <div class="buttonContainer">
+                      <!-- both buttons (backend code and contact driver) -->
+                    <button class="contact">Contact Driver</button>   
+                    <a href="https://github.com/Team3-GwinnettBus/Gwinnett-Bus" target="_blank"><button class="viewBackend" onclick="togglePopup()"> View BackEnd Code</button>   </a>
                 </div>
             </div>
         </div>
     </main>
 </body>
+  <!-- link js last to reduce website lag on loading -->
 <script src="js/main.js"></script>
 </html>

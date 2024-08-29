@@ -15,6 +15,8 @@
     html,body{
         overflow: hidden;
     }
+    /* main body of content */
+  
     /* define map height as fill screen, z index below our into panel to ensure it stays background*/
     #map { 
         height:100vh;
@@ -35,8 +37,14 @@
         position: absolute;
         bottom: 0%;
         padding: 0px;
+        
     }   
+    
 
+    img{
+    width: 5rem;
+}
+ 
 /* stying of panel. I tried to mimic a modern looking ui  */
 .info {
 position: fixed;
@@ -75,12 +83,46 @@ justify-content: center;
   font-weight: bold;
   text-transform: uppercase;
   position: relative;
-  width: 50%;
+  width: 49%;
   height: 100%;
   background-color: #000;
-  color: #fff
+  color: #fff;
+  border-color: white;
 }
- 
+.viewBackend {
+  border: 3px solid #000;
+  padding: 10px;
+  font-size: 18px;
+  right: 50%;
+  font-weight: bold;
+  text-transform: uppercase;
+  position: absolute;
+  width: 49%;
+  height: 100%;
+  background-color: #000;
+  color: #fff;
+  border-color: white;
+}
+.buttonContainer{
+    position: relative;
+}
+
+.popup{
+position: fixed;
+top: 10vh;
+left: 10vw;
+width: 50vw;
+height: 50vh;
+background: #fff;
+z-index: 10;
+display: none;
+}
+.popup.active{
+    display: block;
+}
+
+
+
 </style>
 
 <head>
@@ -91,15 +133,26 @@ justify-content: center;
 </head>
 
 <body>
-    <!-- create map, info panel container and sub divs, add text-->
-    <div id="map"></div>
-    <div id="main-info-panel">
-        <div class="info">
-            <span class="info_header">Timmy is 4 min away</span>
-            <p class="info__content">Timmy is currently  on board bus 14, and is on the way home.</p>
-            <button class="contact">Contact Driver</button>    
+    <!-- create nav bar, map, info panel container and sub divs, add text-->
+    
+    
+    <main>
+        <div class="popup" id="codebox">
+           
+            <div class="content"></div>
         </div>
-    </div>
+        <div id="map"></div>
+        <div id="main-info-panel">
+            <div class="info">
+                <span class="info_header">Timmy is 4 min away</span>
+                <p class="info__content">Timmy is currently  on board bus 14, and is on the way home.</p>
+                    <div class="buttonContainer">
+                        <button class="contact">Contact Driver</button>   
+                        <a href="https://github.com/Team3-GwinnettBus/Gwinnett-Bus" target="_blank"><button class="viewBackend" onclick="togglePopup()"> View BackEnd Code</button>   </a>
+                </div>
+            </div>
+        </div>
+    </main>
 </body>
 <script>
     //simple script utilizing OpenStreetMap and the Leaflet Js api to map a location
@@ -166,5 +219,17 @@ async function getISSLocation(){
     radius.setLatLng([lat,lng])
     marker.setLatLng([lat,lng])
 }
+
+//toggle popup code viewer 
+// function togglePopup(){
+//     if(document.getElementById("codebox").style.display=="block"){
+//         document.getElementById("codebox").style.display="none"
+//     }
+//     else{
+//          document.getElementById("codebox").style.display="block"
+//     }
+
+//    console.log("Code Viewer Toggled")
+// }
 </script>
 </html>

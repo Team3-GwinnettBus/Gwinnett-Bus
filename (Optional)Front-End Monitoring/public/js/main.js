@@ -1,10 +1,10 @@
- //simple script utilizing OpenStreetMap and the Leaflet Js api to map a location
-    // example location is International Space Station sice we dont have data yet
-    //credit / resources:
-    // API calls for map found here:  https://leafletjs.com/reference.html
-    // API calls for ISS location example found here: https://wheretheiss.at/w/developer
+//simple script utilizing OpenStreetMap and the Leaflet Js api to map a location
+// example location is International Space Station sice we dont have data yet
+//credit / resources:
+// API calls for map found here:  https://leafletjs.com/reference.html
+// API calls for ISS location example found here: https://wheretheiss.at/w/developer
 
-    // Michael Rizig (4850/01 Group 3)
+// Michael Rizig (4850/01 Group 3)
 
 //create map and define startin zoom
 var map = L.map('map').setView([33.891792443690065, -84.0392303466797], 6);

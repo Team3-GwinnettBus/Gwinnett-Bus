@@ -1,5 +1,6 @@
 # Requiremments from gcps include that mySQL is the relational database of choice
 # import mySQL:
+# TODO: format data before returning it (depends on how driver is set up to accept - michael)
 import mysql.connector
 from ExceptionHandling import QueryErrorException
 HOST = "SERVER IP HERE"

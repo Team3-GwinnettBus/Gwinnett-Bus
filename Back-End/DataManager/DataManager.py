@@ -1,6 +1,7 @@
 # Requiremments from gcps include that mySQL is the relational database of choice
 # import mySQL:
 import mysql.connector
+from ExceptionHandling import QueryErrorException
 HOST = "SERVER IP HERE"
 USER= "MYSQL USER HERE"
 PASSWRD = "MYSQLPASSWRD HERE"
@@ -18,11 +19,14 @@ class DataManager:
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-        data = self.databaseCursor.execute(f"SELECT * FROM {DATABASE_NAME} WHERE id = {bus_number}")
-        # **PROCESS DATA (dependent on db scema)**
-        jsonLike = {
-            # format data into json-like struct
-        }
+        try:
+            data = self.databaseCursor.execute(f"SELECT * FROM {DATABASE_NAME} WHERE id = {bus_number}")
+            # **PROCESS DATA (dependent on db scema)**
+            jsonLike = {
+                # format data into json-like struct
+            }
+        except:
+            QueryErrorException("Invalid Bus Number")
         #return that data
         return jsonLike
     

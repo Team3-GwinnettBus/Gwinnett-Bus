@@ -1,4 +1,4 @@
-from BusManager import BusManager, Bus
+from BusManager import BusManager
 
 
 manager = BusManager()

@@ -31,7 +31,7 @@ var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
 getISSLocation();
 
 //update every second
-setInterval(getISSLocation, 1001);
+setInterval(getISSLocation, 3000);
 
 //fetch location (this entire section will be replaced with a fetch( *sql query* ).then(response=>{ plot coordinates}).catch(e=>{}) when we get the server running)
 // navigator.geolocation.watchPosition(success,failure);
@@ -62,20 +62,17 @@ async function getISSLocation() {
   map.setView([lat, lng]);
   radius.setLatLng([lat, lng]);
   marker.setLatLng([lat, lng]);
-
-  // this part sends the data to the database server ( See Gwinnett-Bus/Back-End/Dummy Database/databaseServer.js)
-  // put format in heaader tag (json format)
-  const data = { lat, lng };
-  const api_options = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  };
-  fetch("/update", api_options);
+  UpdateBusData({ id: "1" });
 }
 
+async function UpdateBusData(data) {
+  const options = {
+    method: "GET",
+    body: JSON.stringify(data),
+  };
+  let response = await fetch("/update");
+  console.log(await response.json());
+}
 //toggle popup code viewer
 // function togglePopup(){
 //     if(document.getElementById("codebox").style.display=="block"){

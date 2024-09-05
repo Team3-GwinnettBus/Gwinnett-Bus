@@ -9,7 +9,7 @@ class BusManager:
         bus_id = "".join(random.choices('0123456789', k=15))
         latitude = random.uniform(-90, 90)
         longitude = random.uniform(-180, 180)
-        heading_degrees = random.uniform(0, 360)
+        heading_degrees = int(random.uniform(0, 360))
         accuracy_meters = 0
         gps_speed = 0
         ecu_speed = 0

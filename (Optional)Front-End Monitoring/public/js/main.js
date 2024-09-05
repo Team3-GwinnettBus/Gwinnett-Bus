@@ -62,10 +62,10 @@ async function getISSLocation() {
   map.setView([lat, lng]);
   radius.setLatLng([lat, lng]);
   marker.setLatLng([lat, lng]);
-  UpdateBusData({ id: "1" });
+  GetBusData({ id: "1" });
 }
-
-async function UpdateBusData(data) {
+// function to update the current bus data
+async function GetBusData(data) {
   const options = {
     method: "GET",
     body: JSON.stringify(data),

@@ -62,6 +62,18 @@ async function getISSLocation() {
   map.setView([lat, lng]);
   radius.setLatLng([lat, lng]);
   marker.setLatLng([lat, lng]);
+
+  // this part sends the data to the database server ( See Gwinnett-Bus/Back-End/Dummy Database/databaseServer.js)
+  // put format in heaader tag (json format)
+  const data = { lat, lng };
+  const api_options = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  };
+  fetch("/update", api_options);
 }
 
 //toggle popup code viewer

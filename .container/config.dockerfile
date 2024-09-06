@@ -11,5 +11,8 @@ RUN Pip3 install kafka-python
 
 #install library to allow for api calls
 RUN Pip3 install requests
+
+#install server dependency flask
+RUN Pip3 install flask
 # pip install confluent-kafka
 # insert imports as you include them in files thx guys

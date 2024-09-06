@@ -1,4 +1,4 @@
-<span style="font-size:1.5em;">Server API calls and data formatting:</span>
+<u><span style="font-size:2em;">Server API calls and data formatting:</span></u>
 
 <b>- /getBusData:</b><br>
 Body of request must include json as such:</br>

@@ -1,3 +1,4 @@
+import math
 import random
 import simpy.rt
 from datetime import datetime, timezone
@@ -15,14 +16,34 @@ class Bus(object):
         self.speed = {}
 
     def initialize_data(self):
-        # Initializes data to random values
-        # TODO: Make location data somewhat realistic and establish geofence to Gwinnett County
+        # Initializes data to random values in geofence
+        center_latitude = 33.9197
+        center_longitude = -84.0167
+        radius_meters = 22000
+
+        def get_random_location():
+            radius_degrees = radius_meters / 111320
+            angle = random.uniform(0, 2 * math.pi)
+            distance = random.uniform(0, radius_degrees)
+
+            random_latitude = center_latitude + distance * math.cos(angle)
+            random_longitude = center_longitude + distance * math.sin(angle) / math.cos(math.radians(center_latitude))
+
+            return random_latitude, random_longitude
+
+        latitude, longitude = get_random_location()
         self.location = {
-            "latitude": round(random.uniform(-90, 90), 9),
-            "longitude": round(random.uniform(-180, 180), 9),
+            "latitude": latitude,
+            "longitude": longitude,
             "headingDegrees": int(random.uniform(0, 360)),
             "accuracyMeters": 0,
-            "geofence": {}
+            "geofence": {
+                "circle": {
+                    "latitude": center_latitude,
+                    "longitude": center_longitude,
+                    "radiusMeters": radius_meters
+                }
+            }
         }
         self.speed = {
             "gpsSpeedMetersPerSecond": random.uniform(0, 60),
@@ -53,8 +74,8 @@ def start_buses(env, num_buses):
         Bus(env)
 
 
-env = simpy.rt.RealtimeEnvironment(factor=1, strict=True)
+bus_env = simpy.rt.RealtimeEnvironment(factor=1, strict=True)
 # Number of buses to simulate
-start_buses(env, 3)
+start_buses(bus_env, 3)
 # Run for n seconds
-env.run(until=30)
+bus_env.run(until=30)

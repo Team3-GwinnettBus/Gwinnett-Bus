@@ -22,11 +22,15 @@ class DataManager:
         # connnect to database (ip,user,pass TBD)
         self.busDatabase = mysql.connector.connect(host=HOST,user = USER,passwd = PASSWRD, database=DATABASE_NAME)
         if self.busDatabase.isConnected():
+            self.connected = True
             print("connection to database successful")
+            
         else:
+            self.connected = False
             print("connection to databse failed")
         # cursor to query/insert
         self.databaseCursor = self.busDatabase.cursor()
+        return self.connected
     
     # function called to query database for a particular bus
     # input: bus number output:

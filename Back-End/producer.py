@@ -1,9 +1,9 @@
 from kafka import KafkaProducer
 
-TOPICNAME = 'quickstart-events'
-KafkaServer = 'localhost:9092'
+TOPICNAME = 'GCPS_Bus_Monitoring'
+SERVERIP = 'localhost:9092'
 
-producer = KafkaProducer(bootstrap_servers=KafkaServer)
+producer = KafkaProducer(bootstrap_servers=SERVERIP)
 producer.send(TOPICNAME,b'test')
 producer.flush()
 print("sent")

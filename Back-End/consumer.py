@@ -1,8 +1,9 @@
 from kafka import KafkaConsumer
 
-TOPIC_NAME = 'quickstart-events'
+TOPICNAME = 'quickstart-events'
+SERVERIP = 'localhost:9092'
 
-consumer = KafkaConsumer(TOPIC_NAME)
+consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP)
 
 for messages in consumer:
     print(messages)

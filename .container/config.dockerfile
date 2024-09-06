@@ -9,4 +9,5 @@ RUN Pip3 install mysql-connector
 #install kafka api for general kafka server use
 RUN Pip3 install kafka-python
 
+# pip install confluent-kafka
 # insert imports as you include them in files thx guys

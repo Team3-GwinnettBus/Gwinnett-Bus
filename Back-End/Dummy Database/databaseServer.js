@@ -22,10 +22,12 @@ server.use(
 server.use(expressApi.json({ limit: "1mb" }));
 
 // server routing for post requests (when a bus is updating its location, this route api is used)
-server.get("/update", (request, response) => {
+server.post("/getBusData", (request, response) => {
   console.log("update recieved");
   console.log(request.body);
   response.json({
     status: "accepted",
   });
 });
+
+server.post("/updateBusData", (request, response) => {});

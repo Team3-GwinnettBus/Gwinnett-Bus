@@ -68,7 +68,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 
 //set bus icon
 var busIcon = L.icon({
-  iconUrl: "../res/school-bus.png",
+  iconUrl: "/static/res/school-bus.png",
   iconSize: [70, 80],
   iconAnchor: [28, 70],
 });

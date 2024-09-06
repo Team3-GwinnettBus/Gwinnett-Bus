@@ -1,14 +1,18 @@
 # Requiremments from gcps include that mySQL is the relational database of choice
-# import mySQL:
 # TODO: format data before returning it (depends on how driver is set up to accept - michael)
-#import mysql.connector
+# import mysql api
+import mysql.connector
 
+# to handle https requests
 import requests
+# custom error for when database query is invalid (wrong bus number, databsae down, etc)
+class QueryErrorException(Exception):
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
 
-from ExceptionHandling import QueryErrorException
-HOST = "SERVER IP HERE"
-USER= "MYSQL USER HERE"
-PASSWRD = "MYSQLPASSWRD HERE"
+HOST = "localhost"
+USER= "root"
+PASSWRD = "password"
 DATABASE_NAME = "Name of database created in mySQL goes here"
 # datamanager object to manage queries
 class DataManager:
@@ -17,6 +21,10 @@ class DataManager:
     def __init__(self):
         # connnect to database (ip,user,pass TBD)
         self.busDatabase = mysql.connector.connect(host=HOST,user = USER,passwd = PASSWRD, database=DATABASE_NAME)
+        if self.busDatabase.isConnected():
+            print("connection to database successful")
+        else:
+            print("connection to databse failed")
         # cursor to query/insert
         self.databaseCursor = self.busDatabase.cursor()
     
@@ -33,6 +41,7 @@ class DataManager:
             QueryErrorException("Invalid Bus Number")
         #return that data
         return jsonLike
+    
     def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
         data = {
             "id":bus_number,
@@ -42,11 +51,4 @@ class DataManager:
               "accuracy":accuracy,
               "speed":speed
             }
-              
-        response = requests.get("localhost:3000/updateBusData", json=data)
-        if response.status_code == 200:
-            posts = response.json()
-            return posts
-        else:
-            print('Error:', response.status_code)
-            return None
+

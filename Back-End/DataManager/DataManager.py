@@ -1,7 +1,10 @@
 # Requiremments from gcps include that mySQL is the relational database of choice
 # import mySQL:
 # TODO: format data before returning it (depends on how driver is set up to accept - michael)
-import mysql.connector
+#import mysql.connector
+
+import requests
+
 from ExceptionHandling import QueryErrorException
 HOST = "SERVER IP HERE"
 USER= "MYSQL USER HERE"
@@ -30,4 +33,20 @@ class DataManager:
             QueryErrorException("Invalid Bus Number")
         #return that data
         return jsonLike
-    
+    def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
+        data = {
+            "id":bus_number,
+              "longitude":long, 
+              "latitude":lat, 
+              "heading":heading, 
+              "accuracy":accuracy,
+              "speed":speed
+            }
+              
+        response = requests.get("localhost:3000/updateBusData", json=data)
+        if response.status_code == 200:
+            posts = response.json()
+            return posts
+        else:
+            print('Error:', response.status_code)
+            return None

@@ -34,25 +34,26 @@ async function GetBusData(data) {
   let response = await fetch("/getBusData", options);
   console.log(await response.json());
 }
-async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {
-  const data = {
-    id: id_num,
-    longitude: long,
-    latitude: lat,
-    heading: heading,
-    speed: mph,
-  };
-  const options = {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-  let response = await fetch("/updateBusData", options);
-  console.log(await response.json());
-  console.log("data send");
-}
+
+// async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {
+//   const data = {
+//     id: id_num,
+//     longitude: long,
+//     latitude: lat,
+//     heading: heading,
+//     speed: mph,
+//   };
+//   const options = {
+//     method: "POST",
+//     body: JSON.stringify(data),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   };
+//   let response = await fetch("/updateBusData", options);
+//   console.log(await response.json());
+//   console.log("data send");
+// }
 // MAIN:
 
 //create map and define startin zoom

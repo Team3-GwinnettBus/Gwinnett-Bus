@@ -24,6 +24,7 @@ async function getISSLocation() {
 }
 // function to update the current bus data
 async function GetBusData(bus_number) {
+  console.log("Request for Bus " + bus_number + " sent to server. Response:");
   let response = await fetch(
     "/getBusData?" +
       new URLSearchParams({
@@ -36,11 +37,8 @@ async function GetBusData(bus_number) {
   var accuracyRadius = values.accuracy;
   //update center, circle, and marker/icon
   map.setView([lat, lng]);
-  radius = L.circle(
-    [lat, lng],
-    { radius: accuracyRadius },
-    { icon: busIcon }
-  ).addTo(map);
+  radius.setLatLng([lat, lng]);
+  radius.setRadius(accuracyRadius);
   marker.setLatLng([lat, lng]);
   console.log(values);
 }
@@ -89,4 +87,11 @@ var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
 //call function
 //getISSLocation();
 //update every second
-setInterval(GetBusData(1), 3000);
+GetBusData(1);
+setInterval(() => {
+  try {
+    GetBusData(1);
+  } catch (error) {
+    console.log("here");
+  }
+}, 3000);

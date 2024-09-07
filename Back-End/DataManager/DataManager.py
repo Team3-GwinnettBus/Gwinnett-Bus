@@ -44,13 +44,8 @@ class DataManager:
             }               
             #return that data
             return output
-    
+    #todo
     def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
-        data = {
-            "id":bus_number,
-              "longitude":long, 
-              "latitude":lat, 
-              "heading":heading, 
-              "accuracy":accuracy,
-              "speed":speed
-            }
+        self.databaseCursor.execute(f"INSERT INTO test_bus_data.Bus{bus_number} (time,longitude,latitude,heading,accuracy,speed) VALUES (NOW(),{long},{lat},{heading},{accuracy},{speed});")
+        self.busDatabase.commit()
+        return True

@@ -45,18 +45,21 @@ def serverRouting():
     # getBusData api to query the database and returns a buses location
     @server.route('/getBusData', methods=['GET'])
     def getBusData():
-        busId = request.args.get('id')
-        print("Request received: Bus # ",busId)
-        #queryResults = database.getData(busId)
-        return database.getData(busId)
+        busId = request.args.get('id') # get bus id from api query 
+        print("Request received: Bus # ",busId) #print request to terminal
+        return database.getData(busId) #use DataManager object (database=DataManager.Datamanager()) to get data
+    
+
+    @server.route('/setBusData',methods=['POST'])
+    def setData():
+        print("ran")
+        data = request.get_json()
+        status = database.setBusData(data['id'],data["longitude"],data["latitude"],data["heading"],data["accuracy"],data["speed"])
+        if status:
+            return "Status: Success"
+        else:
+            return "Status: Failed"
     server.run('localhost',3000)
-
-#Todo
-def insertData(data):
-    # take passed in data and insert it into the mySQL database
-    pass
-
-
     
 
 # MAIN:

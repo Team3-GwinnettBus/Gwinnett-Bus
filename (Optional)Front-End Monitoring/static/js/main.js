@@ -87,11 +87,10 @@ var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
 //call function
 //getISSLocation();
 //update every second
-GetBusData(1);
 setInterval(() => {
   try {
     GetBusData(1);
   } catch (error) {
-    console.log("here");
+    console.log("Error fetching location data");
   }
 }, 3000);

@@ -13,7 +13,7 @@ class QueryErrorException(Exception):
 HOST = "localhost"
 USER= "root"
 PASSWRD = "password"
-DATABASE_NAME = "Name of database created in mySQL goes here"
+DATABASE_NAME = "test_bus_data"
 # datamanager object to manage queries
 class DataManager:
    
@@ -21,30 +21,29 @@ class DataManager:
     def __init__(self):
         # connnect to database (ip,user,pass TBD)
         self.busDatabase = mysql.connector.connect(host=HOST,user = USER,passwd = PASSWRD, database=DATABASE_NAME)
-        if self.busDatabase.isConnected():
-            self.connected = True
-            print("connection to database successful")
-            
-        else:
-            self.connected = False
-            print("connection to databse failed")
         # cursor to query/insert
         self.databaseCursor = self.busDatabase.cursor()
-        return self.connected
+        return None
     
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-        try:
-            data = self.databaseCursor.execute(f"SELECT * FROM {DATABASE_NAME} WHERE id = {bus_number}")
+            # query database for most recent data abt that bus
+            self.databaseCursor.execute(f"SELECT * FROM Bus{bus_number} ORDER BY time DESC LIMIT 1;")
             # **PROCESS DATA (dependent on db scema)**
-            jsonLike = {
-                # format data into json-like struct
-            }
-        except:
-            QueryErrorException("Invalid Bus Number")
-        #return that data
-        return jsonLike
+            raw = self.databaseCursor.fetchall()
+            data = raw[0]
+            # format into our required json
+            output = {
+                "id" : bus_number,
+                "longitude" : data[1],
+                "latitude" : data[2],
+                "heading" : data[3],
+                "accuracy" : data[4],
+                "speed" : data[5]
+            }               
+            #return that data
+            return output
     
     def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
         data = {
@@ -55,4 +54,3 @@ class DataManager:
               "accuracy":accuracy,
               "speed":speed
             }
-

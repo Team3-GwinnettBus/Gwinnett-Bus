@@ -20,19 +20,29 @@ async function getISSLocation() {
   radius.setLatLng([lat, lng]);
   marker.setLatLng([lat, lng]);
   GetBusData({ id: "1" });
-  setBusData(1, lat, lng, 55, 55, 35);
+  //setBusData(1, lat, lng, 55, 55, 35);
 }
 // function to update the current bus data
-async function GetBusData(data) {
-  const options = {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
-  let response = await fetch("/getBusData", options);
-  console.log(await response.json());
+async function GetBusData(bus_number) {
+  let response = await fetch(
+    "/getBusData?" +
+      new URLSearchParams({
+        id: bus_number,
+      }).toString()
+  );
+  const values = await response.json();
+  var lng = values.longitude;
+  var lat = values.latitude;
+  var accuracyRadius = values.accuracy;
+  //update center, circle, and marker/icon
+  map.setView([lat, lng]);
+  radius = L.circle(
+    [lat, lng],
+    { radius: accuracyRadius },
+    { icon: busIcon }
+  ).addTo(map);
+  marker.setLatLng([lat, lng]);
+  console.log(values);
 }
 
 // async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {
@@ -57,7 +67,7 @@ async function GetBusData(data) {
 // MAIN:
 
 //create map and define startin zoom
-var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 6);
+var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 20);
 
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -77,6 +87,6 @@ var busIcon = L.icon({
 var radius = L.circle([0, 0], { radius: 1000 }, { icon: busIcon }).addTo(map);
 var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
 //call function
-getISSLocation();
+//getISSLocation();
 //update every second
-setInterval(getISSLocation, 3000);
+setInterval(GetBusData(1), 3000);

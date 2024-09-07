@@ -10,7 +10,7 @@ import sys
 sys.path.insert(1,'../Back-End/DataManager')
 
 #import our datamanager object
-import DataManager
+#import DataManager
 
 # import threading to make this a multithreaded server
 import threading
@@ -19,7 +19,7 @@ import threading
 server = Flask(__name__)
 
 #initiate our database connection
-database = DataManager.DataManager()
+#database = DataManager.DataManager()
 
 # define constants topic name an server address
 TOPICNAME = 'Bus_Data'
@@ -41,13 +41,21 @@ def serverRouting():
     @server.route("/")
     def index():
         return render_template('index.html')  #(templates/index.html)
-
+    
     # getBusData api to query the database and returns a buses location
-    @server.route('/getBusData', methods=['POST'])
+    @server.route('/getBusData', methods=['GET'])
     def getBusData():
-        busId = request.get_json()['id']
-        queryResults = database.getData(busId)
-        return queryResults
+        busId = request.args.get('id')
+        print("Request received: Bus # ",busId)
+        #queryResults = database.getData(busId)
+        return {
+            "id" : busId,
+            "longitude" : -84.043763,
+            "latitude" : 33.853552,
+            "heading" : 3,
+            "accuracy" : 300,
+            "speed" : 50
+        }
     server.run('localhost',3000)
 
 #Todo

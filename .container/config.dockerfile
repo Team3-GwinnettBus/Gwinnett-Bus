@@ -1,5 +1,10 @@
 # import the docker python base image (im using 3.10 we can choose whatever - michael)
 FROM python:3.10
+# import kafka base image for docker
+FROM apache/kafka:3.8.0
+
+#start kafka server ( -p signifies port, default is 9092)
+RUN -p 9092:9092 apache/kafka:3.8.0
 # update pip (just incase)
 RUN Pip3 install --upgrade Pip3
 

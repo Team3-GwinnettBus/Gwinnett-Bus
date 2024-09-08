@@ -29,6 +29,7 @@ def eventStreaming():
     
     consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP) # create consumer, connect with topic
     for messages in consumer:   
+        # Todo: format messages values into json format for insertData to work properly
         threading.Thread(target=insertData,args={messages}) #insert each new event into the database
 
 def insertData(data):

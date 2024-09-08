@@ -2,29 +2,25 @@
 
 #import server lib
 from flask import Flask, render_template, request
-
 # import kafka for data consumption
 #from kafka import KafkaConsumer
 # to import datamanager
 import sys
 sys.path.insert(1,'../Back-End/DataManager')
-
 #import our datamanager object
 import DataManager
-
 # import threading to make this a multithreaded server
 import threading
+#import requests to make https requests
+import requests
 
 #initiate our server
 server = Flask(__name__)
-
 #initiate our database connection
 database = DataManager.DataManager()
-
 # define constants topic name an server address
 TOPICNAME = 'Bus_Data'
 SERVERIP = 'localhost:9092'
-
 # event streaming function continuously waits until topic is updated
 # when updated, new thread is created, and data is passed to insertData funtion
 # new thread is used so server can support many concurrent requests
@@ -33,7 +29,22 @@ def eventStreaming():
     consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP) # create consumer, connect with topic
     for messages in consumer:   
         threading.Thread(target=insertData,args={messages}) #insert each new event into the database
-    
+
+def insertData():
+    # save api endpoint (update with used port)
+    ENDPOINT = 'http://localhost:3000/setBusData'
+    #format incoming data as json based on formatting instructions (see README)
+    busdata = {
+        "id" : 1,
+        "latitude" : 33.9191,
+        "longitude" : -85.999,
+        "heading" : 90,
+        "accuracy" : 80,
+        "speed" : 10
+        } 
+    post = requests.post(url=ENDPOINT,json = busdata)
+    response = post.text
+    print(response)   
 # server routing handles GET and POST requests for gps data from front end monitoring
 def serverRouting():
 

@@ -21,6 +21,7 @@ database = DataManager.DataManager()
 # define constants topic name an server address
 TOPICNAME = 'Bus_Data'
 SERVERIP = 'localhost:9092'
+
 # event streaming function continuously waits until topic is updated
 # when updated, new thread is created, and data is passed to insertData funtion
 # new thread is used so server can support many concurrent requests
@@ -30,21 +31,13 @@ def eventStreaming():
     for messages in consumer:   
         threading.Thread(target=insertData,args={messages}) #insert each new event into the database
 
-def insertData():
-    # save api endpoint (update with used port)
-    ENDPOINT = 'http://localhost:3000/setBusData'
-    #format incoming data as json based on formatting instructions (see README)
-    busdata = {
-        "id" : 1,
-        "latitude" : 33.9191,
-        "longitude" : -85.999,
-        "heading" : 90,
-        "accuracy" : 80,
-        "speed" : 10
-        } 
-    post = requests.post(url=ENDPOINT,json = busdata)
-    response = post.text
-    print(response)   
+def insertData(data):
+   
+    status = database.setBusData(data['id'],data["longitude"],data["latitude"],data["heading"],data["accuracy"],data["speed"])
+    if status:
+        return "Status: Success"
+    else:
+        return "Status: Failed"
 # server routing handles GET and POST requests for gps data from front end monitoring
 def serverRouting():
 
@@ -65,11 +58,7 @@ def serverRouting():
     def setData():
         print("ran")
         data = request.get_json()
-        status = database.setBusData(data['id'],data["longitude"],data["latitude"],data["heading"],data["accuracy"],data["speed"])
-        if status:
-            return "Status: Success"
-        else:
-            return "Status: Failed"
+        return insertData(data)
     server.run('localhost',3000)
     
 

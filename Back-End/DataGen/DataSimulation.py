@@ -5,8 +5,9 @@ from datetime import datetime, timezone
 
 
 class Bus(object):
-    def __init__(self, env):
+    def __init__(self, env, producer):
         self.env = env
+        self.producer = producer
         self.action = env.process(self.run())
 
         self.asset = {
@@ -63,19 +64,23 @@ class Bus(object):
         self.initialize_data()
         while True:
             # Send to Kafka producer here
-            print(self.get_data())
+            data = self.get_data()
+            self.producer.send_data(data)
+            print("Sending", self.get_data())
             # Wait 5 seconds between sharing data
             yield self.env.timeout(delay=5)
 
 
-def start_buses(env, num_buses):
-    # Starts each bus
-    for i in range(num_buses):
-        Bus(env)
+class BusDataGenerator(object):
+    # Initialize data generator with producer in producer.py
+    def __init__(self, producer):
+        self.bus_env = simpy.rt.RealtimeEnvironment(factor=1, strict=True)
+        self.producer = producer
 
+    def start_simulation(self, num_buses, seconds):
+        # Starts each bus
+        for i in range(num_buses):
+            Bus(self.bus_env, self.producer)
 
-bus_env = simpy.rt.RealtimeEnvironment(factor=1, strict=True)
-# Number of buses to simulate
-start_buses(bus_env, 3)
-# Run for n seconds
-bus_env.run(until=30)
+        # Run for n seconds
+        self.bus_env.run(until=seconds)

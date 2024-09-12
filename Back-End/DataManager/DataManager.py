@@ -12,22 +12,22 @@ class QueryErrorException(Exception):
 class DataManager:
     # Connection Variables
     DRIVER = "SQL Server"
-    SERVER = "localhost"
-    DATABASE= "GCPS_BusData" 
+    SERVER = "MichaelsMainPC,1433"
+    DATABASE= "GCPS_Bus" 
     Trust_Connection = "yes"
-    uid = "<username>"
-    pwd = "<password"
+    uid = "user"
+    pwd = "pass"
    
     # constructor
     def __init__(self):
         # connection string to db (fields are hardcoded but can be added as parameters)
-        db_microsoft_sql_server_connection_string = (
-            'DRIVER={ODBC Driver 17 for SQL Server};'
-            'SERVER=localhost;'  # temp location for now using local host
-            'DATABASE=GCPS_BusData;'
-            'UID=SA;'
-            'PWD=SomeStringPassword'
-        )
+        db_microsoft_sql_server_connection_string = """
+        DRIVER={SQL Server};
+        SERVER=MICHAELSMAINPC;
+        DATABASE=GCPS_Bus;
+        Trust_Connection=yes;
+       """
+        print(db_microsoft_sql_server_connection_string)
 
         # setup connection to db
         self.db_connection = pyodbc.connect(db_microsoft_sql_server_connection_string)
@@ -55,7 +55,7 @@ class DataManager:
 
             # format into our required json
             output = {
-                "id" : rows.BusID,
+                "id" : bus_number,
                 "longitude" : rows.Latitude,
                 "latitude" : rows.Longitude,
                 "heading" : rows.Heading,

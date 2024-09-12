@@ -9,10 +9,10 @@ ENDPOINT = 'http://localhost:3000/setBusData'
 #format incoming data as json based on formatting instructions (see README)
 busdata = {
     "id" : 1,
-    "latitude" : 33.9191,
+    "latitude" : 37.8191,
     "longitude" : -84.0155,
     "heading" : 90,
-    "accuracy" : 100,
+    "accuracy" : 20,
     "speed" : 55
     } 
 

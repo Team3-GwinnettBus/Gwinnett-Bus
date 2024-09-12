@@ -12,7 +12,7 @@ class QueryErrorException(Exception):
 class DataManager:
     # Connection Variables
     DRIVER = "SQL Server"
-    SERVER = "MichaelsMainPC,1433"
+    SERVER = "MichaelsMainPC"
     DATABASE= "GCPS_Bus" 
     Trust_Connection = "yes"
     uid = "user"
@@ -21,11 +21,11 @@ class DataManager:
     # constructor
     def __init__(self):
         # connection string to db (fields are hardcoded but can be added as parameters)
-        db_microsoft_sql_server_connection_string = """
-        DRIVER={SQL Server};
-        SERVER=MICHAELSMAINPC;
-        DATABASE=GCPS_Bus;
-        Trust_Connection=yes;
+        db_microsoft_sql_server_connection_string = f"""
+        DRIVER={{{self.DRIVER}}};
+        SERVER={self.SERVER};
+        DATABASE={self.DATABASE};
+        Trust_Connection={self.Trust_Connection};
        """
         print(db_microsoft_sql_server_connection_string)
 
@@ -48,26 +48,26 @@ class DataManager:
     def getData(self, bus_number):
             
             # Execute the select query
-            self.cursor.execute(f"SELECT * FROM Bus{bus_number} ORDER BY time DESC LIMIT 1;")
+            self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY Time DESC) AS rn FROM dbo.Bus1 ) AS subquery WHERE rn = 1;")
 
             # Fetch all the rows
-            rows = self.cursor.fetchall()
-
+            rows = self.db_cursor.fetchall()[0]
+            print(rows)
             # format into our required json
             output = {
                 "id" : bus_number,
-                "longitude" : rows.Latitude,
-                "latitude" : rows.Longitude,
-                "heading" : rows.Heading,
-                "accuracy" : rows.Accuracy,
-                "speed" : rows.speed
+                "longitude" : rows[2],
+                "latitude" : rows[1],
+                "heading" : rows[3],
+                "accuracy" : rows[4],
+                "speed" : rows[5]
             }              
             return output
     #todo
     def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
         
         # define and execute sql command to write data
-        self.db_connection.cursor.execute(f"INSERT INTO test_bus_data.Bus{bus_number} (time,longitude,latitude,heading,accuracy,speed) VALUES (GETDATE(),{long},{lat},{heading},{accuracy},{speed});")
+        self.db_cursor.execute(f"INSERT INTO GCPS_Bus.dbo.Bus{bus_number} (time,longitude,latitude,heading,accuracy,speed) VALUES (GETDATE(),{long},{lat},{heading},{accuracy},{speed});")
         # commit the change
-        self.db_connection.connection.commit()
+        self.db_connection.commit()
         return True

@@ -1,23 +1,38 @@
-# import the docker python base image (im using 3.10 we can choose whatever - michael)
-FROM python:3.10
-# import kafka base image for docker
-FROM apache/kafka:3.8.0
+# New docker file
 
-#start kafka server ( -p signifies port, default is 9092)
-RUN -p 9092:9092 apache/kafka:3.8.0
-# update pip (just incase)
-RUN Pip3 install --upgrade Pip3
+# Use Red Hat UBI 9 OS as the base image for this container
+# This is for compatibility with the server holding the container
+FROM registry.access.redhat.com/ubi9/ubi:9.0
 
-#install mySQL for DataManager.py object
-RUN Pip3 install mysql-connector
+# Set env varibales for Microsoft SQL install
+ENV ACCEPT_EULA=Y
+ENV SA_PASSWORD=BusDatabase2024
+ENV PATH=/opt/mssql-tools/bin:$PATH
 
-#install kafka api for general kafka server use
-RUN Pip3 install kafka-python
+# Install Micrsoft SQL and drivers
+RUN curl https://packages.microsoft.com/config/rhel/9/prod.repo > /etc/yum.repos.d/mssql-release.repo && \
+    dnf install -y msodbcsql17 mssql-tools unixODBC-devel && \
+    dnf clean all
 
-#install library to allow for api calls
-RUN Pip3 install requests
+# Install Python and dependanies
+RUN dnf -y update && \
+    dnf -y install python3.10 python3.10-devel gcc-c++ unixODBC unixODBC-devel && \
+    dnf clean all
+RUN alternatives --set python /usr/bin/python3.10
 
-#install server dependency flask
-RUN Pip3 install flask
-# pip install confluent-kafka
-# insert imports as you include them in files thx guys
+# Install Python libaries
+RUN pip3 install --upgrade pip && \
+    pip3 install pyodbc kafka-python sim
+
+# Add all code and files
+COPY . /app
+WORKDIR /app
+
+# Expose acces for ports for Flask (5000), Kafka (9092), and SQL Server (1433)
+# Ports still need to be published to use when running the container
+EXPOSE 5000    # Flask
+EXPOSE 9092    # Kafka
+EXPOSE 1433    # SQL Server
+
+# Run any scripts on boot using CMD (for Flask server, SQL server, Kafka, or anything you want running off the bat)
+# Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]

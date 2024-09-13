@@ -1,73 +1,51 @@
 # Requiremments from gcps include that mySQL is the relational database of choice
 # TODO: format data before returning it (depends on how driver is set up to accept - michael)
+# import mysql api
+import mysql.connector
 
-import pyodbc
-
+# to handle https requests
+import requests
 # custom error for when database query is invalid (wrong bus number, databsae down, etc)
 class QueryErrorException(Exception):
     def __init__(self, *args: object) -> None:
         super().__init__(*args)
 
+HOST = "localhost"
+USER= "root"
+PASSWRD = "password"
+DATABASE_NAME = "test_bus_data"
 # datamanager object to manage queries
 class DataManager:
-    # Connection Variables
-    DRIVER = "SQL Server"
-    SERVER = "MichaelsMainPC"
-    DATABASE= "GCPS_Bus" 
-    Trust_Connection = "yes"
-    uid = "user"
-    pwd = "pass"
    
-    # constructor
+   # constructor
     def __init__(self):
-        # connection string to db (fields are hardcoded but can be added as parameters)
-        db_microsoft_sql_server_connection_string = f"""
-        DRIVER={{{self.DRIVER}}};
-        SERVER={self.SERVER};
-        DATABASE={self.DATABASE};
-        Trust_Connection={self.Trust_Connection};
-       """
-        print(db_microsoft_sql_server_connection_string)
-
-        # setup connection to db
-        self.db_connection = pyodbc.connect(db_microsoft_sql_server_connection_string)
-
-        # control object to manipulate db
-        self.db_cursor = self.db_connection.cursor()
-
+        # connnect to database (ip,user,pass TBD)
+        self.busDatabase = mysql.connector.connect(host=HOST,user = USER,passwd = PASSWRD, database=DATABASE_NAME)
+        # cursor to query/insert
+        self.databaseCursor = self.busDatabase.cursor()
         return None
-
-
-    def close_connection_db(self):
-        # clean up after done using db
-        self.db_cursor.close()
-        self.db_connection.close()
-        
+    
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-            
-            # Execute the select query
-            self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY Time DESC) AS rn FROM dbo.Bus1 ) AS subquery WHERE rn = 1;")
-
-            # Fetch all the rows
-            rows = self.db_cursor.fetchall()[0]
-            print(rows)
+            # query database for most recent data abt that bus
+            self.databaseCursor.execute(f"SELECT * FROM Bus{bus_number} ORDER BY time DESC LIMIT 1;")
+            # **PROCESS DATA (dependent on db scema)**
+            raw = self.databaseCursor.fetchall()
+            data = raw[0]
             # format into our required json
             output = {
                 "id" : bus_number,
-                "longitude" : rows[2],
-                "latitude" : rows[1],
-                "heading" : rows[3],
-                "accuracy" : rows[4],
-                "speed" : rows[5]
-            }              
+                "longitude" : data[1],
+                "latitude" : data[2],
+                "heading" : data[3],
+                "accuracy" : data[4],
+                "speed" : data[5]
+            }               
+            #return that data
             return output
     #todo
     def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
-        
-        # define and execute sql command to write data
-        self.db_cursor.execute(f"INSERT INTO GCPS_Bus.dbo.Bus{bus_number} (time,longitude,latitude,heading,accuracy,speed) VALUES (GETDATE(),{long},{lat},{heading},{accuracy},{speed});")
-        # commit the change
-        self.db_connection.commit()
+        self.databaseCursor.execute(f"INSERT INTO test_bus_data.Bus{bus_number} (time,longitude,latitude,heading,accuracy,speed) VALUES (NOW(),{long},{lat},{heading},{accuracy},{speed});")
+        self.busDatabase.commit()
         return True

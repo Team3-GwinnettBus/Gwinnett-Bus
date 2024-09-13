@@ -60,14 +60,43 @@ class Bus(object):
             "speed": self.speed
         }
 
+    def update_location(self):
+        # Small fluctuation in speed
+        speed_change = random.randint(-5, 5)
+        self.speed["gpsSpeedMetersPerSecond"] = min(30, max(0, self.speed["gpsSpeedMetersPerSecond"] + speed_change))
+        self.speed["ecuSpeedMetersPerSecond"] = min(30, max(0, self.speed["ecuSpeedMetersPerSecond"] + speed_change))
+
+        # Take average of GPS and ECU speed to calculate distance traveled in 5 seconds
+        avg_speed = (self.speed["gpsSpeedMetersPerSecond"] + self.speed["ecuSpeedMetersPerSecond"]) / 2
+        distance = avg_speed * 5
+
+        # Small fluctuation in heading degrees and converting it to radians
+        degree_change = random.randint(-10, 10)
+        self.location["headingDegrees"] = (self.location["headingDegrees"] + degree_change) % 360
+        radians = math.radians(self.location["headingDegrees"])
+
+        # Approximate conversion factors
+        meters_per_degree_latitude = 111320
+        meters_per_degree_longitude = 111320 * math.cos(math.radians(self.location["latitude"]))
+
+        # Calculate change in latitude and longitude
+        delta_latitude = (distance * math.cos(radians)) / meters_per_degree_latitude
+        delta_longitude = (distance * math.sin(radians)) / meters_per_degree_longitude
+
+        # Update the current location
+        self.location["latitude"] += delta_latitude
+        self.location["longitude"] += delta_longitude
+
     def run(self):
         self.initialize_data()
+
         while True:
             # Send to Kafka producer here
             data = self.get_data()
             self.producer.send_data(data)
             print("Sending", self.get_data())
             # Wait 5 seconds between sharing data
+            self.update_location()
             yield self.env.timeout(delay=5)
 
 

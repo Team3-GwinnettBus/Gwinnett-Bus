@@ -85,12 +85,18 @@ var busIcon = L.icon({
 var radius = L.circle([0, 0], { radius: 1000 }, { icon: busIcon }).addTo(map);
 var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
 //call function
-//getISSLocation();
+
 //update every second
 setInterval(() => {
   try {
-    GetBusData(1);
+    GetBusData(1).then(endLoader);
   } catch (error) {
     console.log("Error fetching location data");
   }
 }, 3000);
+// end loading animation
+function endLoader() {
+  // hide the loader and show the updated info panel
+  document.getElementById("loader").style.display = "none";
+  document.getElementById("info").style.display = "block";
+}

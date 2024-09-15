@@ -89,6 +89,9 @@ class Bus(object):
 
     def run(self):
         self.initialize_data()
+        # Stagger the start of each bus
+        start_delay = random.uniform(0, 5)
+        yield self.env.timeout(delay=start_delay)
 
         while True:
             # Send to Kafka producer here

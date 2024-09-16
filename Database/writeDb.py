@@ -1,0 +1,5 @@
+
+import DataManager
+
+db = DataManager()
+

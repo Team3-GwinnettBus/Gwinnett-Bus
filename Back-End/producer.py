@@ -17,7 +17,7 @@ class KafkaDataProducer:
 
 
 # Kafka Producer setup
-TOPIC = 'quickstart-events'
+TOPIC = 'GCPS_Bus_Monitoring'
 SERVER = 'localhost:9092'
 
 BusDataProducer = KafkaDataProducer(TOPIC, SERVER)

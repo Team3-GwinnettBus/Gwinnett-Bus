@@ -30,7 +30,7 @@ def eventStreaming():
     
     consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP) # create consumer, connect with topic
     for messages in consumer:   
-        # grab the 'value' tag from kafka event and parse as jsongit fetch origin
+        # grab the 'value' tag from kafka event and parse as json
         data = json.loads(messages.value)
         threading.Thread(target=insertData,args=(data,)).start() #insert each new event into the database
         

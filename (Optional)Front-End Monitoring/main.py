@@ -3,7 +3,7 @@
 #import server lib
 from flask import Flask, render_template, request
 # import kafka for data consumption
-#from kafka import KafkaConsumer
+from kafka import KafkaConsumer
 # to import datamanager
 import sys
 sys.path.insert(1,'../Back-End/DataManager')
@@ -13,13 +13,14 @@ import DataManager
 import threading
 #import requests to make https requests
 import requests
-
+#import json for handling and parsing json files
+import json
 #initiate our server
 server = Flask(__name__)
 #initiate our database connection
 database = DataManager.DataManager()
 # define constants topic name an server address
-TOPICNAME = 'Bus_Data'
+TOPICNAME = 'GCPS_Bus_Monitoring'
 SERVERIP = 'localhost:9092'
 
 # event streaming function continuously waits until topic is updated
@@ -29,11 +30,13 @@ def eventStreaming():
     
     consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP) # create consumer, connect with topic
     for messages in consumer:   
-        # Todo: format messages values into json format for insertData to work properly
-        threading.Thread(target=insertData,args={messages}) #insert each new event into the database
+        # grab the 'value' tag from kafka event and parse as jsongit fetch origin
+        data = json.loads(messages.value)
+        threading.Thread(target=insertData,args=(data,)).start() #insert each new event into the database
+        
 
 def insertData(data):
-   
+    
     status = database.setBusData(data['id'],data["longitude"],data["latitude"],data["heading"],data["accuracy"],data["speed"])
     if status:
         return "Status: Success"
@@ -68,5 +71,5 @@ def serverRouting():
 routingProcess = threading.Thread(target=serverRouting)
 routingProcess.start()
 #create event streaming thread
-#eventStreamingProcess = threading.Thread(target=eventStreaming)
-#eventStreamingProcess.start()
+eventStreamingProcess = threading.Thread(target=eventStreaming)
+eventStreamingProcess.start()

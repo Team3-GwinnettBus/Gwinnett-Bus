@@ -71,15 +71,14 @@ BEGIN
         cb.LastUpdated = GETDATE()
     FROM CurrentBusLocations cb
     INNER JOIN (
-        SELECT BusID, Longitude, Latitude, Speed, Heading, GeoFence, GPSTime
-        FROM LiveData
-        WHERE (BusID, InsertionTime) IN (
-            SELECT BusID, MAX(InsertionTime)
+        SELECT ld.BusID, ld.Longitude, ld.Latitude, ld.Speed, ld.Heading, ld.GeoFence, ld.GPSTime
+        FROM LiveData ld
+        INNER JOIN (
+            SELECT BusID, MAX(InsertionTime) AS MaxInsertionTime
             FROM LiveData
             GROUP BY BusID
-        )
-    ) latestData
-    ON cb.BusID = latestData.BusID
+        ) latest ON ld.BusID = latest.BusID AND ld.InsertionTime = latest.MaxInsertionTime
+    ) latestData ON cb.BusID = latestData.BusID
     WHERE 
         cb.Longitude <> latestData.Longitude OR
         cb.Latitude <> latestData.Latitude OR
@@ -88,6 +87,7 @@ BEGIN
         cb.GeoFence <> latestData.GeoFence OR
         cb.GPSTime <> latestData.GPSTime;
 END;
+
 
 GO
 

@@ -121,4 +121,4 @@ EXEC sp_add_jobschedule
 -- Step 4: Enable the job
 EXEC sp_add_jobserver
     @job_name = 'UpdateBusLocations',
-    @server_name = 'localhost';  -- Use your server name
+    @server_name = 'RHEL9.xVM';  -- Use your server name

@@ -68,10 +68,11 @@ BEGIN
         cb.Heading = latestData.Heading,
         cb.GeoFence = latestData.GeoFence,
         cb.GPSTime = latestData.GPSTime,
-        cb.LastUpdated = GETDATE()
+        cb.LastUpdated = latestData.InsertionTime,
+        cb.Accuracy = latestData.Accuracy
     FROM CurrentBusLocations cb
     INNER JOIN (
-        SELECT ld.BusID, ld.Longitude, ld.Latitude, ld.Speed, ld.Heading, ld.GeoFence, ld.GPSTime
+        SELECT ld.BusID, ld.Longitude, ld.Latitude, ld.Speed, ld.Heading, ld.GeoFence, ld.GPSTime, ld.Accuracy, ld.InsertionTime
         FROM LiveData ld
         INNER JOIN (
             SELECT BusID, MAX(InsertionTime) AS MaxInsertionTime
@@ -85,7 +86,9 @@ BEGIN
         cb.Speed <> latestData.Speed OR
         cb.Heading <> latestData.Heading OR
         cb.GeoFence <> latestData.GeoFence OR
-        cb.GPSTime <> latestData.GPSTime;
+        cb.GPSTime <> latestData.GPSTime OR
+        cb.Accuracy <> latestData.Accuracy OR
+        cb.LastUpdated <> latestData.InsertionTime;
 END;
 
 

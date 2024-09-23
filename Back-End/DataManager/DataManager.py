@@ -26,6 +26,7 @@ class DataManager:
         DATABASE={self.DATABASE};
         uid={self.uid};
         pwd={self.pwd};
+        TrustServerCertificate=yes;
        """
         print(db_microsoft_sql_server_connection_string)
 

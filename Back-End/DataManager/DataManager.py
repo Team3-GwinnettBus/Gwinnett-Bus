@@ -12,11 +12,10 @@ class QueryErrorException(Exception):
 class DataManager:
     # Connection Variables
     DRIVER = "SQL Server"
-    SERVER = "MichaelsMainPC"
+    SERVER = "RHEL9.xVM"
     DATABASE= "GCPS_Bus" 
-    Trust_Connection = "yes"
-    uid = "user"
-    pwd = "pass"
+    uid = "SA"
+    pwd = "HootyHoo!"
    
     # constructor
     def __init__(self):
@@ -25,7 +24,8 @@ class DataManager:
         DRIVER={{{self.DRIVER}}};
         SERVER={self.SERVER};
         DATABASE={self.DATABASE};
-        Trust_Connection={self.Trust_Connection};
+        uid={self.uid};
+        pwd={self.pwd};
        """
         print(db_microsoft_sql_server_connection_string)
 

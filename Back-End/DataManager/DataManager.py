@@ -66,10 +66,10 @@ class DataManager:
             }              
             return output
     #todo
-    def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
+    def setBusData(self,data):
         
         # define and execute sql command to write data
-        self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,longitude,latitude,heading,accuracy,speed,GeoFence) VALUES (GETDATE(),-84.386100,33.76100,90,200,20,'GeoFenceDataHere');")
+        self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,BusID,longitude,latitude,heading,accuracy,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['accuracy']},{data['speed']},'GeoFenceDataHere');")
         # call update procedure in db
         self.db_cursor.execute("UpdateCurrentBusLocation;")
         # commit the change

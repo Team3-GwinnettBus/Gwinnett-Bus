@@ -14,6 +14,7 @@ busdata = {
     "heading" : 90,
     "accuracy" : 20,
     "speed" : 55,
+    "GeoFence" : "GeoFenceData"
     
     } 
 

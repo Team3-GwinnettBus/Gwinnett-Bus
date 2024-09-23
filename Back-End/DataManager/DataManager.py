@@ -11,7 +11,7 @@ class QueryErrorException(Exception):
 # datamanager object to manage queries
 class DataManager:
     # Connection Variables
-    DRIVER = "SQL Server"
+    DRIVER = "ODBC Driver 18 for SQL Server"
     SERVER = "RHEL9.xVM"
     DATABASE= "GCPS_Bus" 
     uid = "SA"

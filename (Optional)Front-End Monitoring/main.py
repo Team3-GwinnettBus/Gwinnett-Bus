@@ -57,8 +57,8 @@ def serverRouting():
 
     @server.route('/setBusData',methods=['POST'])
     def setData():
-        print("ran")
         data = request.get_json()
+        print("Incoming Update From Bus ", data['BusID'])
         return insertData(data)
     server.run('localhost',3000)
     

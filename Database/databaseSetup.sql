@@ -1,9 +1,9 @@
--- Step 1: Create the BusTrackingDB Database
-CREATE DATABASE BusTrackingDB;
+-- Step 1: Create the GCPS_Bus Database
+CREATE DATABASE GCPS_Bus;
 GO
 
 -- Step 2: Use the newly created database
-USE BusTrackingDB;
+USE GCPS_Bus;
 GO
 
 -- Step 3: Create the CurrentBusLocations Table (only the most updated values for each bus)

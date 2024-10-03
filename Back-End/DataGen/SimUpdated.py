@@ -1,99 +1,88 @@
 import asyncio
 import math
-import queue
 import random
 import networkx
 import osmnx
+import pickle
 from datetime import datetime, timezone
+
+# Load saved graph or create new graph from location and ensure its strongly connected
+network = osmnx.load_graphml('MapData/gwinnett.graphml')
+
+# Load edge dictionary from file
+with open('MapData/edge_data.pkl', 'rb') as f:
+    edges = pickle.load(f)
+
+
+# Generate a random path from random locations on the graph
+def get_path():
+    nodes = list(network.nodes())
+    return networkx.shortest_path(network, random.choice(nodes), random.choice(nodes))
 
 
 class Bus:
-    def __init__(self, asset_id, update_queue, network):
+    def __init__(self, asset_id, update_queue):
         self.asset_id = {
             "id": asset_id
         }
         self.update_queue = update_queue
-        self.network = network
         self.location = {}
 
-        speed = random.uniform(5, 20)
+        speed = random.randint(5, 20)
         self.speed = {
             "gpsSpeedMetersPerSecond": speed,
             "ecuSpeedMetersPerSecond": speed
         }
 
-        self.path = self.get_path()
+        self.path = get_path()
         self.current_node = 0
         self.distance_along_edge = 0.0
-        self.update_location(initial=True)
 
     async def run(self):
         while True:
-            self.update_location(initial=False)
+            self.update_location()
             await self.update_queue.put(self.get_data())
             await asyncio.sleep(5)
 
-    # Create a random path from random locations on the graph
-    def get_path(self):
-        nodes = list(self.network.nodes())
-        return networkx.shortest_path(self.network, random.choice(nodes), random.choice(nodes))
+    def update_location(self):
+        # Calculate how far vehicle traveled in past 5 seconds
+        self.distance_along_edge += self.speed['gpsSpeedMetersPerSecond'] * 5
 
-    def update_location(self, initial):
-        # Initialize variables for new path
-        if initial or self.current_node >= len(self.path) - 1:
-            self.path = self.get_path()
-            self.current_node = 0
-            self.distance_along_edge = 0.0
+        while self.current_node < len(self.path) - 1:
+            current_edge = edges.get((self.path[self.current_node], self.path[self.current_node + 1]))
+            edge_length = current_edge['length']
+            edge_angle = current_edge['heading']
 
-        # Create small variation in speed and calculate distance traveled over 5 seconds
-        if not initial:
-            speed_change = random.uniform(-0.5, 0.5)
-            new_speed = self.speed["gpsSpeedMetersPerSecond"] + speed_change
-            self.speed["gpsSpeedMetersPerSecond"] = max(5, min(20, int(new_speed)))
-            self.speed["ecuSpeedMetersPerSecond"] = self.speed["gpsSpeedMetersPerSecond"]
-
-            distance_traveled = self.speed["gpsSpeedMetersPerSecond"] * 5  # 5 seconds between updates
-            self.distance_along_edge += distance_traveled
-
-        while True:
-            current_node = self.path[self.current_node]
-            next_node = self.path[self.current_node + 1]
-
-            current_pos = self.network.nodes[current_node]
-            next_pos = self.network.nodes[next_node]
-
-            dx = next_pos['x'] - current_pos['x']
-            dy = next_pos['y'] - current_pos['y']
-            edge_length = math.sqrt(dx ** 2 + dy ** 2)
-
-            # Check if bus reached next node
-            if self.distance_along_edge < edge_length:
-                progress = self.distance_along_edge / edge_length
-                break
-            else:
+            # If there's enough distance to cover the current edge
+            if self.distance_along_edge >= edge_length:
+                # Move to the next node
                 self.distance_along_edge -= edge_length
                 self.current_node += 1
-                if self.current_node >= len(self.path) - 1:
-                    self.path = self.get_path()
-                    self.current_node = 0
-                    self.distance_along_edge = 0.0
-                    break
+            else:
+                progress = self.distance_along_edge / edge_length
 
-        # Calculate the current position
-        progress = self.distance_along_edge / edge_length
-        current_latitude = current_pos['y'] + progress * dy
-        current_longitude = current_pos['x'] + progress * dx
+                # Find progress along edge
+                dx = math.cos(math.radians(edge_angle)) * edge_length * progress
+                dy = math.sin(math.radians(edge_angle)) * edge_length * progress
 
-        # Calculate heading
-        heading = math.degrees(math.atan2(dx, dy))
-        heading = (heading + 360) % 360  # Ensure heading is between 0 and 360
+                # Calculate the new position on the edge
+                current_latitude = network.nodes[self.path[self.current_node]]['y'] + dy
+                current_longitude = network.nodes[self.path[self.current_node]]['x'] + dx
 
-        self.location = {
-            "latitude": current_latitude,
-            "longitude": current_longitude,
-            "headingDegrees": int(heading),
-            "accuracyMeters": 5 + random.uniform(-1, 1)
-        }
+                # Update the location with heading and accuracy
+                self.location = {
+                    "latitude": current_latitude,
+                    "longitude": current_longitude,
+                    "headingDegrees": edge_angle,
+                    "accuracyMeters": 5 + random.uniform(-1, 1)
+                }
+                return
+
+        # Get new path
+        if self.current_node >= len(self.path) - 1:
+            self.path = get_path()
+            self.current_node = 0
+            self.distance_along_edge = 0.0
 
     # Return data as formatted in Samsara API
     def get_data(self):
@@ -127,18 +116,10 @@ class DataCollector:
 
 
 async def main():
-    # Load saved graph or create new graph from location and ensure its strongly connected
-    network = osmnx.load_graphml('MapData/gwinnett.graphml')
-
-    # graph = osmnx.graph_from_place("Gwinnett County, Georgia, USA", network_type='drive')
-    # largest_component = max(networkx.strongly_connected_components(graph), key=len)
-    # network = networkx.subgraph(graph, largest_component)
-    # osmnx.save_graphml(network, 'MapData/gwinnett.graphml')
-
     update_queue = asyncio.Queue()
     num_buses = 2000
 
-    buses = [Bus(i + 1, update_queue, network) for i in range(num_buses)]
+    buses = [Bus(i + 1, update_queue) for i in range(num_buses)]
     bus_tasks = [asyncio.create_task(bus.run()) for bus in buses]
 
     collector = DataCollector(update_queue)

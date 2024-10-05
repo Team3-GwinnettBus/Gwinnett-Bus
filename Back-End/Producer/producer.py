@@ -4,7 +4,7 @@ from kafka import KafkaProducer
 # fixes import errors
 # pip install --break-system-packages git+https://github.com/dpkp/kafka-python.git
 
-TOPIC = 'quickstart-events'
+TOPIC = 'GCPS_Bus_Monitoring'
 SERVER = 'localhost:9092'
 
 producer = KafkaProducer(

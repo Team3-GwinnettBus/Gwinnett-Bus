@@ -1,5 +1,4 @@
 import json
-from DataGen import DataSimulation
 from kafka import KafkaProducer
 
 

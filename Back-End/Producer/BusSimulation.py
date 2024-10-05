@@ -1,9 +1,9 @@
 import asyncio
 import math
-import random
 import networkx
 import osmnx
 import pickle
+import random
 from datetime import datetime, timezone
 
 # Load saved graph or create new graph from location and ensure its strongly connected
@@ -61,13 +61,15 @@ class Bus:
             else:
                 progress = self.distance_along_edge / edge_length
 
-                # Find progress along edge
-                dx = math.cos(math.radians(edge_angle)) * edge_length * progress
-                dy = math.sin(math.radians(edge_angle)) * edge_length * progress
+                # Get start and end coordinates of edge
+                start_lat = current_edge['start_lat']
+                start_lon = current_edge['start_lon']
+                end_lat = current_edge['end_lat']
+                end_lon = current_edge['end_lon']
 
-                # Calculate the new position on the edge
-                current_latitude = network.nodes[self.path[self.current_node]]['y'] + dy
-                current_longitude = network.nodes[self.path[self.current_node]]['x'] + dx
+                # Calculate new coordinates from progress
+                current_latitude = start_lat + (end_lat - start_lat) * progress
+                current_longitude = start_lon + (end_lon - start_lon) * progress
 
                 # Update the location with heading and accuracy
                 self.location = {

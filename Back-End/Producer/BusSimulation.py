@@ -1,10 +1,14 @@
 import asyncio
-import math
 import networkx
 import osmnx
 import pickle
 import random
 from datetime import datetime, timezone
+
+KAFKA_MODE = False
+
+if KAFKA_MODE:
+    from producer import send_data, flush
 
 # Load saved graph or create new graph from location and ensure its strongly connected
 network = osmnx.load_graphml('MapData/gwinnett.graphml')
@@ -48,6 +52,7 @@ class Bus:
         # Calculate how far vehicle traveled in past 5 seconds
         self.distance_along_edge += self.speed['gpsSpeedMetersPerSecond'] * 5
 
+        # Check if bus finished path
         while self.current_node < len(self.path) - 1:
             current_edge = edges.get((self.path[self.current_node], self.path[self.current_node + 1]))
             edge_length = current_edge['length']
@@ -113,8 +118,14 @@ class DataCollector:
     @staticmethod
     def process_updates(updates):
         for update in updates:
+            # Uncomment send_data and flush to test simulation
+            # send_data(update)
+
+            # Prints bus data of bus 1 for debugging
             if update['asset'] == {"id": 1}:
                 print(update)
+
+        # flush()
 
 
 async def main():

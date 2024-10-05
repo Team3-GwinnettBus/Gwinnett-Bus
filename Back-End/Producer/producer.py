@@ -1,29 +1,26 @@
 import json
 from kafka import KafkaProducer
 
+# fixes import errors
+# pip install --break-system-packages git+https://github.com/dpkp/kafka-python.git
 
-class KafkaDataProducer:
-    def __init__(self, topic, server):
-        self.topic = topic
-        self.producer = KafkaProducer(
-            bootstrap_servers=server,
-            client_id='Gwinnett-Bus',
-            value_serializer=lambda v: json.dumps(v).encode('utf-8')
-        )
-
-    def send_data(self, data):
-        self.producer.send(self.topic, data)
-
-
-# Kafka Producer setup
 TOPIC = 'quickstart-events'
 SERVER = 'localhost:9092'
 
-BusDataProducer = KafkaDataProducer(TOPIC, SERVER)
+producer = KafkaProducer(
+    bootstrap_servers=SERVER,
+    client_id='Gwinnett-Bus',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
 
-# Initialize and start generation of synthetic bus data
-data_generator = DataSimulation.BusDataGenerator(BusDataProducer)
-data_generator.start_simulation(3, 30)
+    # These values aren't final, additional testing needed
+    linger_ms=50,  # 50 ms delay to batch messages
+    batch_size=32 * 1024  # 32KB batch size
+)
 
-BusDataProducer.producer.flush()
-print("Simulation complete")
+
+def send_data(data):
+    producer.send(TOPIC, data)
+
+
+def flush():
+    producer.flush()

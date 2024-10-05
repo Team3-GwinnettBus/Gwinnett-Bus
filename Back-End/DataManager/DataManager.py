@@ -11,12 +11,11 @@ class QueryErrorException(Exception):
 # datamanager object to manage queries
 class DataManager:
     # Connection Variables
-    DRIVER = "SQL Server"
-    SERVER = "MichaelsMainPC"
+    DRIVER = "ODBC Driver 18 for SQL Server"
+    SERVER = "RHEL9.xVM"
     DATABASE= "GCPS_Bus" 
-    Trust_Connection = "yes"
-    uid = "user"
-    pwd = "pass"
+    uid = "SA"
+    pwd = "HootyHoo!"
    
     # constructor
     def __init__(self):
@@ -25,7 +24,9 @@ class DataManager:
         DRIVER={{{self.DRIVER}}};
         SERVER={self.SERVER};
         DATABASE={self.DATABASE};
-        Trust_Connection={self.Trust_Connection};
+        uid={self.uid};
+        pwd={self.pwd};
+        TrustServerCertificate=yes;
        """
         print(db_microsoft_sql_server_connection_string)
 
@@ -48,26 +49,29 @@ class DataManager:
     def getData(self, bus_number):
             
             # Execute the select query
-            self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY Time DESC) AS rn FROM dbo.Bus1 ) AS subquery WHERE rn = 1;")
-
+            self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY LastUpdated DESC) AS rn FROM CurrentBusLocations ) AS subquery WHERE rn = {bus_number};")
             # Fetch all the rows
             rows = self.db_cursor.fetchall()[0]
             print(rows)
             # format into our required json
             output = {
                 "id" : bus_number,
-                "longitude" : rows[2],
-                "latitude" : rows[1],
-                "heading" : rows[3],
-                "accuracy" : rows[4],
-                "speed" : rows[5]
+                "longitude" : rows[1],
+                "latitude" : rows[2],
+                "heading" : rows[4],
+                "accuracy" : rows[8],
+                "speed" : rows[3],
+                "GeoFence": rows[5],
+                "GPS_Time": rows[6]
             }              
             return output
     #todo
-    def setBusData(self,bus_number,long,lat,heading,accuracy,speed):
+    def setBusData(self,data):
         
         # define and execute sql command to write data
-        self.db_cursor.execute(f"INSERT INTO GCPS_Bus.dbo.Bus{bus_number} (time,longitude,latitude,heading,accuracy,speed) VALUES (GETDATE(),{long},{lat},{heading},{accuracy},{speed});")
+        self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,BusID,longitude,latitude,heading,accuracy,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['accuracy']},{data['speed']},'GeoFenceDataHere');")
+        # call update procedure in db
+        self.db_cursor.execute("UpdateCurrentBusLocation;")
         # commit the change
         self.db_connection.commit()
         return True

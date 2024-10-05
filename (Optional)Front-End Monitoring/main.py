@@ -13,7 +13,8 @@ import DataManager
 import threading
 #import requests to make https requests
 import requests
-
+#import json for parsing 
+import json
 #initiate our server
 server = Flask(__name__)
 #initiate our database connection
@@ -29,12 +30,13 @@ def eventStreaming():
     
     consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP) # create consumer, connect with topic
     for messages in consumer:   
-        # Todo: format messages values into json format for insertData to work properly
-        threading.Thread(target=insertData,args={messages}) #insert each new event into the database
+        # grab the 'value' tag from kafka event and parse as json
+        data = json.loads(messages.value)
+        threading.Thread(target=insertData,args=(data,)).start()
 
 def insertData(data):
    
-    status = database.setBusData(data['id'],data["longitude"],data["latitude"],data["heading"],data["accuracy"],data["speed"])
+    status = database.setBusData(data)
     if status:
         return "Status: Success"
     else:
@@ -57,8 +59,8 @@ def serverRouting():
 
     @server.route('/setBusData',methods=['POST'])
     def setData():
-        print("ran")
         data = request.get_json()
+        print("Incoming Update From Bus ", data['BusID'])
         return insertData(data)
     server.run('localhost',3000)
     

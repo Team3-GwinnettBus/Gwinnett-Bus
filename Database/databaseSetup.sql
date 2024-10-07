@@ -33,8 +33,21 @@ CREATE TABLE LiveData (
     FOREIGN KEY (BusID) REFERENCES CurrentBusLocations(BusID)
 );
 GO
-
--- Step 5: Insert Initial Data into CurrentBusLocations to satisfy the foreign key constraint
+-- Step 5: Create the table for invalid or irregular
+CREATE TABLE InvalidData (
+    HistoryID INT IDENTITY(1,1) PRIMARY KEY,
+    BusID INT,
+    Longitude DECIMAL(9, 6),
+    Latitude DECIMAL(9, 6),
+    Speed DECIMAL(5, 2),
+    Heading DECIMAL(5, 2),
+    GeoFence NVARCHAR(255),
+    GPSTime DATETIME,
+    InsertionTime DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (BusID) REFERENCES CurrentBusLocations(BusID)
+);
+GO
+-- Step 6: Insert Initial Data into CurrentBusLocations to satisfy the foreign key constraint
 INSERT INTO CurrentBusLocations (BusID, Longitude, Latitude, Speed, Heading, GeoFence, GPSTime)
 VALUES
     (1, -84.3880, 33.7490, 40.50, 180.00, 'Downtown', '2024-09-23 10:15:30'),
@@ -42,7 +55,7 @@ VALUES
     (3, -84.3920, 33.7480, 50.00, 270.00, 'Buckhead', '2024-09-23 10:16:30');
 GO
 
--- Step 6: Insert Dummy Data into LiveData
+-- Step 7: Insert Dummy Data into LiveData
 INSERT INTO LiveData (BusID, Longitude, Latitude, Speed, Heading, GeoFence, GPSTime)
 VALUES
     (1, -84.3880, 33.7490, 40.50, 180.00, 'Downtown', '2024-09-23 10:15:30'),
@@ -53,7 +66,7 @@ VALUES
     (3, -84.3850, 33.7520, 38.00, 135.00, 'Buckhead', '2024-09-23 10:18:00');
 GO
 
--- Step 7: Create a SQL Server Agent Job (which acts as an event running every 3 seconds)
+-- Step 8: Create a SQL Server Agent Job (which acts as an event running every 3 seconds)
 -- SQL Server doesn't have an exact equivalent of MySQL's EVENT scheduler, so we use a SQL Server Agent Job
 
 -- First, create a stored procedure to update bus locations

@@ -12,5 +12,5 @@ RUN pip install kafka-python
 EXPOSE 3000
 
 # start  
-RUN CD \(Optional\)Front-End\ Monitoring/
-RUN python main.py
+RUN pwd
+RUN python (Optional\)Front-End\ Monitoring/main.py

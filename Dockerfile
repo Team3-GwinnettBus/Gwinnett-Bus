@@ -1,5 +1,5 @@
 FROM python:3.12
-WORKDIR /home/administrator/Gwinnett-Bus
+WORKDIR /home/administrator/Gwinnett-Bus/\(Optional\)Front-End\ Monitoring/
 
 ADD . .
 
@@ -13,4 +13,4 @@ EXPOSE 3000
 
 # start  
 RUN pwd
-RUN python \(Optional\)Front-End\ Monitoring/main.py
+RUN python main.py

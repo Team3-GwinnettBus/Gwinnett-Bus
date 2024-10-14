@@ -11,5 +11,7 @@ RUN pip install kafka-python
 
 EXPOSE 3000
 
+# start  
+RUN yum install unixODBC-devel
 RUN ls
 RUN python main.py

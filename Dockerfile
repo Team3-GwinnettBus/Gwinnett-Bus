@@ -1,5 +1,5 @@
 FROM python:3.12
-WORKDIR /home/administrator/Gwinnett-Bus\(Optional\)Front-End\ Monitoring/
+WORKDIR /\(Optional\)Front-End\ Monitorings
 
 ADD . .
 

@@ -1,5 +1,5 @@
 FROM python:3.12
-WORKDIR /home/administrator/Gwinnett-Bus/\(Optional\)Front-End\ Monitoring/
+WORKDIR /home/administrator/Gwinnett-Bus
 
 ADD . .
 
@@ -12,5 +12,5 @@ RUN pip install kafka-python
 EXPOSE 3000
 
 # start  
-RUN pwd
+RUN CD \(Optional\)Front-End\ Monitoring/
 RUN python main.py

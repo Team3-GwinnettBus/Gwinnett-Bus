@@ -1,5 +1,5 @@
 FROM python:3.12
-
+FROM openjdk:11
 WORKDIR /home/administrator/Gwinnett-Bus
 
 ADD . . 

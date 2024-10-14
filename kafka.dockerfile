@@ -1,15 +1,15 @@
 
 FROM openjdk:11
-WORKDIR /home/administrator/Gwinnett-Bus/kafka_2.13-3.8.0
+WORKDIR /home/administrator/Gwinnett-Bus
 
 ADD . . 
 # open port
 EXPOSE 9092
 
 # start kafka
-RUN KAFKA_CLUSTER_ID="$(/home/administrator/Gwinnett-Bus/kafka_2.13-3.8.0/bin/kafka-storage.sh random-uuid)"
-RUN bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
+RUN KAFKA_CLUSTER_ID="$(kafka_2.13-3.8.0/bin/kafka-storage.sh random-uuid)"
+RUN kafka_2.13-3.8.0bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
 
-RUN /bin/kafka-server-start.sh config/kraft/server.properties
+RUN kafka_2.13-3.8.0/bin/kafka-server-start.sh config/kraft/server.properties
 
 

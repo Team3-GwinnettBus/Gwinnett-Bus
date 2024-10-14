@@ -1,7 +1,7 @@
 FROM python:3.12
 WORKDIR /home/administrator/Gwinnett-Bus\(Optional\)Front-End\ Monitoring/
 
-ADD . ../.
+ADD . .
 
 # dependencies:
 RUN pip install Flask

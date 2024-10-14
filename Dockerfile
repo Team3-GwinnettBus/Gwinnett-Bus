@@ -13,4 +13,5 @@ EXPOSE 3000
 
 # start  
 RUN pwd
+RUN ls
 RUN python main.py

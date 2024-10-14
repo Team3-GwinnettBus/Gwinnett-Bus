@@ -13,4 +13,4 @@ EXPOSE 3000
 
 # start  
 RUN pwd
-RUN python (Optional\)Front-End\ Monitoring/main.py
+RUN python \(Optional\)Front-End\ Monitoring/main.py

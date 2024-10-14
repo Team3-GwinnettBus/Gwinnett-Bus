@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles for dark mode */
+body {
+    @apply bg-background text-text;
+    font-family: "Inter", sans-serif;
+    line-height: 1.6;
+}
+
+a {
+    @apply text-accent hover:underline;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    @apply font-bold;
+}
+
+/* Buttons */
+button {
+    @apply bg-primary text-text px-4 py-2 rounded-md hover:bg-accent transition-all duration-400;
+}
+
+/* Card component */
+.card {
+    @apply bg-card shadow-lg rounded-lg p-6 border border-border;
+}
+
+/* Navbar */
+.navbar {
+    @apply bg-primary text-text px-6 py-3 shadow-md;
+}
+
+/* Footer */
+footer {
+    @apply bg-card text-text py-4;
+}
+
+/* Custom scrollbar styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-card;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-primary rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-accent;
+}

@@ -1,7 +1,7 @@
 FROM python:3.12
-WORKDIR /\(Optional\)Front-End\ Monitoring
 
 ADD . .
+WORKDIR /\(Optional\)Front-End\ Monitoring
 
 # dependencies:
 RUN pip install Flask

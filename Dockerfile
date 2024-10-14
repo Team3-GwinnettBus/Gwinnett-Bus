@@ -3,6 +3,7 @@ FROM redhat/ubi9
 ADD . .
 WORKDIR /\(Optional\)Front-End\ Monitoring
 
+RUN DNF install python3.12
 # dependencies:
 RUN pip install Flask
 RUN pip install pyodbc

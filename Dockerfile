@@ -1,5 +1,5 @@
 FROM python:3.12
-WORKDIR /\(Optional\)Front-End\ Monitorings
+WORKDIR /\(Optional\)Front-End\ Monitoring
 
 ADD . .
 

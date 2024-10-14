@@ -1,4 +1,4 @@
-FROM python:3.12
+FROM redhat/ubi9
 
 ADD . .
 WORKDIR /\(Optional\)Front-End\ Monitoring

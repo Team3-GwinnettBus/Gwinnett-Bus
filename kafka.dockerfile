@@ -7,8 +7,8 @@ ADD . .
 EXPOSE 9092
 
 # start kafka
+RUN KAFKA_CLUSTER_ID="$(bin/kafka-storage.sh random-uuid)"
+RUN bin/kafka-storage.sh format -t $KAFKA_CLUSTER_ID -c config/kraft/server.properties
 RUN kafka_2.13-3.8.0/bin/kafka-server-start.sh config/kraft/server.properties
 
-# start  
-RUN CD \(Optional\)Front-End\ Monitoring/
-RUN python main.py
+

@@ -67,7 +67,7 @@ class DataManager:
             return output
     #todo
     def setBusData(self,data):
-        if data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or data['longitude'] > -80 or   data['longitude']< -84 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:
+        if data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or   data['longitude']< -88 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:
             print("anomaly detected in data.",data['BusID'],data['longitude'] ,data['latitude'],data['heading'],data['speed'])
             self.db_cursor.execute(f"INSERT INTO InvalidData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
         else:

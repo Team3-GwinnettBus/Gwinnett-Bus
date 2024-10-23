@@ -126,7 +126,7 @@ class DataCollector:
             send_data(update)
 
             # Prints bus data of bus 1 for debugging
-            if update['asset'] == {"BusID": 1}:
+            if update['BusID'] == {"BusID": 1}:
                 print(update)
 
         flush()

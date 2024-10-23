@@ -134,7 +134,7 @@ class DataCollector:
 
 async def main():
     update_queue = asyncio.Queue()
-    num_buses = 3
+    num_buses = 10
 
     buses = [Bus(i + 1, update_queue) for i in range(num_buses)]
     bus_tasks = [asyncio.create_task(bus.run()) for bus in buses]

@@ -37,6 +37,7 @@ def eventStreaming():
 def insertData(data):
    
     status = database.setBusData(data)
+    print("Inserted record " , data)
     if status:
         return "Status: Success"
     else:

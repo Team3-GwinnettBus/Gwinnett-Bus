@@ -67,7 +67,6 @@ class DataManager:
             return output
     #todo
     def setBusData(self,data):
-        self.insertDummy(data)
         if data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or  data['longitude']< -85 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:
             print("anomaly detected in data.",data['BusID'],data['longitude'] ,data['latitude'],data['heading'],data['speed'])
             self.db_cursor.execute(f"INSERT INTO InvalidData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
@@ -79,6 +78,3 @@ class DataManager:
         # commit the change
         self.db_connection.commit()
         return True
-    def insertDummy(self,data):
-        for i in range(50):
-            self.db_cursor.execute(f"INSERT INTO CurrentBusLocations (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{i},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")

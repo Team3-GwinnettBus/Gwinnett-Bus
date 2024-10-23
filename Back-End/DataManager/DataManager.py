@@ -67,12 +67,15 @@ class DataManager:
             return output
     #todo
     def setBusData(self,data):
-        if data['busID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or data['longitude'] > -80 or   data['longitude']< -84 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:
-            print("anomaly detected in data.",data['BusID'],data['longitude'] ,data['latitude'],data['heading'],data['speed'])
-            self.db_cursor.execute(f"INSERT INTO InvalidData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
-        else:
-            # define and execute sql command to write data
-            self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
+        try:
+            if data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or data['longitude'] > -80 or   data['longitude']< -84 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:
+                print("anomaly detected in data.",data['BusID'],data['longitude'] ,data['latitude'],data['heading'],data['speed'])
+                self.db_cursor.execute(f"INSERT INTO InvalidData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
+            else:
+                # define and execute sql command to write data
+                self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
+        except:
+            print("Error")
         # call update procedure in db
         self.db_cursor.execute("UpdateCurrentBusLocation;")
         # commit the change

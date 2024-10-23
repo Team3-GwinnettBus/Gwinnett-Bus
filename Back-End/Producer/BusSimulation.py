@@ -27,7 +27,7 @@ def get_path():
 class Bus:
     def __init__(self, asset_id, update_queue):
         self.asset_id = {
-            "id": asset_id
+            "BusID": asset_id
         }
         self.update_queue = update_queue
         self.location = {}
@@ -94,10 +94,14 @@ class Bus:
     # Return data as formatted in Samsara API
     def get_data(self):
         return {
-            "happenedAtTime": datetime.now(timezone.utc).isoformat(timespec='seconds'),
-            "asset": self.asset_id,
-            "location": self.location,
-            "speed": self.speed
+            "BusID": self.asset_id,
+            "latitude": self.location["latitude"],
+            "longitude": self.location["longitude"],
+            "heading": self.location["headingDegrees"],
+            "accuracy": self.location["accuracyMeters"],
+            "speed": self.speed["gpsSpeedMetersPerSecond"],
+            "geofence": "Geofence",
+            "GPS_Time": datetime.now("UTC")
         }
 
 
@@ -122,7 +126,7 @@ class DataCollector:
             send_data(update)
 
             # Prints bus data of bus 1 for debugging
-            if update['asset'] == {"id": 1}:
+            if update['asset'] == {"BusID": 1}:
                 print(update)
 
         flush()

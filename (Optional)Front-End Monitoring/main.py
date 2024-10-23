@@ -32,7 +32,7 @@ def eventStreaming():
     for messages in consumer:   
         # grab the 'value' tag from kafka event and parse as json
         data = json.loads(messages.value)
-        threading.Thread(target=insertData,args=(data,)).start()
+        insertData(data)
 
 def insertData(data):
    

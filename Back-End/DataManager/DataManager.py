@@ -77,7 +77,7 @@ class DataManager:
         except:
             print("Error")
         # call update procedure in db
-        self.db_cursor.execute("UpdateCurrentBusLocation;")
+        #self.db_cursor.execute("UpdateCurrentBusLocation;")
         # commit the change
         self.db_connection.commit()
         return True

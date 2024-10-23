@@ -3,7 +3,7 @@
 #import server lib
 from flask import Flask, render_template, request
 # import kafka for data consumption
-#from kafka import KafkaConsumer
+from kafka import KafkaConsumer
 # to import datamanager
 import sys
 sys.path.insert(1,'../Back-End/DataManager')
@@ -70,5 +70,5 @@ def serverRouting():
 routingProcess = threading.Thread(target=serverRouting)
 routingProcess.start()
 #create event streaming thread
-#eventStreamingProcess = threading.Thread(target=eventStreaming)
-#eventStreamingProcess.start()
+eventStreamingProcess = threading.Thread(target=eventStreaming)
+eventStreamingProcess.start()

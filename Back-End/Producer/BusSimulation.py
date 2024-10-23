@@ -101,7 +101,7 @@ class Bus:
             "accuracy": self.location["accuracyMeters"],
             "speed": self.speed["gpsSpeedMetersPerSecond"],
             "geofence": "Geofence",
-            "GPS_Time": datetime.now("UTC")
+            "GPS_Time": datetime.now(timezone.utc).isoformat(timespec='seconds')
         }
 
 

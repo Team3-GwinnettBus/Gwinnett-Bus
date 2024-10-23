@@ -13,7 +13,7 @@ class DataManager:
     # Connection Variables
     DRIVER = "ODBC Driver 18 for SQL Server"
     SERVER = "RHEL9.xVM"
-    DATABASE= "GCPS_Bus" 
+    DATABASE= "GCPS_Bus_Data" 
     uid = "SA"
     pwd = "HootyHoo!"
    

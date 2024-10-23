@@ -5,7 +5,7 @@ import pickle
 import random
 from datetime import datetime, timezone
 
-KAFKA_MODE = False
+KAFKA_MODE = True
 
 if KAFKA_MODE:
     from producer import send_data, flush
@@ -119,13 +119,13 @@ class DataCollector:
     def process_updates(updates):
         for update in updates:
             # Uncomment send_data and flush to test simulation
-            # send_data(update)
+            send_data(update)
 
             # Prints bus data of bus 1 for debugging
             if update['asset'] == {"id": 1}:
                 print(update)
 
-        # flush()
+        flush()
 
 
 async def main():

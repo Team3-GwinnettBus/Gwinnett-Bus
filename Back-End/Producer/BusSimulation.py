@@ -94,7 +94,7 @@ class Bus:
     # Return data as formatted in Samsara API
     def get_data(self):
         return {
-            "BusID": self.asset_id,
+            "BusID": self.asset_id["BusID"],
             "latitude": self.location["latitude"],
             "longitude": self.location["longitude"],
             "heading": self.location["headingDegrees"],

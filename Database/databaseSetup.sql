@@ -3,7 +3,7 @@ CREATE DATABASE GCPS_Bus_Data;
 GO
 
 -- Step 2: Use the newly created database
-USE GCPS_Bus;
+USE GCPS_Bus_Data;
 GO
 
 -- Step 3: Create the CurrentBusLocations Table (only the most updated values for each bus)

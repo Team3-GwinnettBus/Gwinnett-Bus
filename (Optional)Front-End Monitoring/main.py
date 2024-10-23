@@ -20,7 +20,7 @@ server = Flask(__name__)
 #initiate our database connection
 database = DataManager.DataManager()
 # define constants topic name an server address
-TOPICNAME = 'Bus_Data'
+TOPICNAME = 'GCPS_Bus_Monitoring'
 SERVERIP = 'localhost:9092'
 
 # event streaming function continuously waits until topic is updated

@@ -44,6 +44,7 @@ async function GetBusData(bus_number) {
   //update center, circle, and marker/icon
 
   console.log(values);
+  console.log(map.getCenter());
 }
 
 // async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {

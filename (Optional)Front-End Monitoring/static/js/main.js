@@ -33,9 +33,9 @@ async function GetBusData(bus_number) {
   );
   const values = await response.json();
   for (const key in values) {
-    var lng = key.longitude;
-    var lat = key.latitude;
-    var accuracyRadius = key.accuracy;
+    var lng = values[key].longitude;
+    var lat = values[key].latitude;
+    var accuracyRadius = values[key].accuracy;
 
     busmarkers[parseInt(key)][0].setLatLng([lat, lng]);
     busmarkers[parseInt(key)][0].setRadius(accuracyRadius);

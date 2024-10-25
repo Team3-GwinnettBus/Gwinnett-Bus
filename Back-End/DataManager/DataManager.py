@@ -77,7 +77,7 @@ class DataManager:
             # define and execute sql command to write data
             self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
         # call update procedure in db
-        #self.db_cursor.execute("UpdateCurrentBusLocation;")
+        self.db_cursor.execute(f"UPDATE CurrentBusLocations SET GPSTime = GETDATE(), longitude = {data['longitude']}, latitude = {data['latitude']}, heading = {data['heading']}, speed ={data['speed']} where BusID = {data['BusID']}")
         # commit the change
         self.db_connection.commit()
         return True

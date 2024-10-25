@@ -38,7 +38,7 @@ async function GetBusData(bus_number) {
     var accuracyRadius = values[key].accuracy;
 
     busmarkers[parseInt(key)][0].setLatLng([lat, lng]);
-    busmarkers[parseInt(key)][0].setRadius(accuracyRadius);
+    //busmarkers[parseInt(key)][0].setRadius(accuracyRadius);
     busmarkers[parseInt(key)][1].setLatLng([lat, lng]);
   }
   //map.setView([lat, lng]);

@@ -35,7 +35,6 @@ async function GetBusData(bus_number) {
   for (const key in values) {
     var lng = values[key].longitude;
     var lat = values[key].latitude;
-    var accuracyRadius = 10;
 
     busmarkers[parseInt(key)][0].setLatLng([lat, lng]);
     //busmarkers[parseInt(key)][0].setRadius(accuracyRadius);
@@ -88,7 +87,7 @@ var busIcon = L.icon({
 //define map variables (circle and marker)
 const busmarkers = [];
 for (let i = 0; i < 50; i++) {
-  var radius = L.circle([0, 0], { radius: 1000 }, { icon: busIcon }).addTo(map);
+  var radius = L.circle([0, 0], { radius: 20 }, { icon: busIcon }).addTo(map);
   var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
   busmarkers.push([marker, radius]);
 }

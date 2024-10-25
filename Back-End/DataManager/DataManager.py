@@ -66,17 +66,7 @@ class DataManager:
             "GPS_Time": rows[i]
             }
         print(output)
-        # format into our required json
-        output = {
-            "id" : bus_number,
-            "longitude" : rows[1],
-            "latitude" : rows[2],
-            "heading" : rows[4],
-            "accuracy" : rows[8],
-            "speed" : rows[3],
-            "GeoFence": rows[5],
-            "GPS_Time": rows[6]
-        }              
+        # format into our required json        
         return output
     #todo
     def setBusData(self,data):

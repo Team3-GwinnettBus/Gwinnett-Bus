@@ -45,7 +45,6 @@ async function GetBusData(bus_number) {
   //update center, circle, and marker/icon
 
   console.log(values);
-  console.log(map.getCenter());
 }
 
 // async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {
@@ -79,7 +78,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
-
+map.setView([33.95332796171439, -83.87374877929688]);
 //set bus icon
 var busIcon = L.icon({
   iconUrl: "/static/res/school-bus.png",

@@ -32,15 +32,19 @@ async function GetBusData(bus_number) {
       }).toString()
   );
   const values = await response.json();
-  var lng = values.longitude;
-  var lat = values.latitude;
-  var accuracyRadius = values.accuracy;
+  for (const key in values) {
+    var lng = values[key].longitude;
+    var lat = values[key].latitude;
+
+    busmarkers[parseInt(key)][0].setLatLng([lat, lng]);
+    //busmarkers[parseInt(key)][0].setRadius(accuracyRadius);
+    busmarkers[parseInt(key)][1].setLatLng([lat, lng]);
+  }
+  //map.setView([lat, lng]);
   //update center, circle, and marker/icon
-  map.setView([lat, lng]);
-  radius.setLatLng([lat, lng]);
-  radius.setRadius(accuracyRadius);
-  marker.setLatLng([lat, lng]);
+
   console.log(values);
+  console.log(map.getCenter());
 }
 
 // async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {
@@ -65,7 +69,7 @@ async function GetBusData(bus_number) {
 // MAIN:
 
 //create map and define startin zoom
-var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 20);
+var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 10.5);
 
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -74,7 +78,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
-
+map.setView([33.953470353472376, -84.02841567993165]);
 //set bus icon
 var busIcon = L.icon({
   iconUrl: "/static/res/school-bus.png",
@@ -82,8 +86,13 @@ var busIcon = L.icon({
   iconAnchor: [28, 70],
 });
 //define map variables (circle and marker)
-var radius = L.circle([0, 0], { radius: 1000 }, { icon: busIcon }).addTo(map);
-var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
+const busmarkers = [];
+for (let i = 0; i < 50; i++) {
+  var radius = L.circle([0, 0], { radius: 20 }, { icon: busIcon }).addTo(map);
+  var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
+  busmarkers.push([marker, radius]);
+}
+
 //call function
 
 //update every second

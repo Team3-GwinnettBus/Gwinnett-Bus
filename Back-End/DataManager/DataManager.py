@@ -47,24 +47,27 @@ class DataManager:
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-            
-            # Execute the select query
-            self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY LastUpdated DESC) AS rn FROM CurrentBusLocations ) AS subquery WHERE rn = {bus_number};")
-            # Fetch all the rows
-            rows = self.db_cursor.fetchall()[0]
-            print(rows)
-            # format into our required json
-            output = {
-                "id" : bus_number,
-                "longitude" : rows[1],
-                "latitude" : rows[2],
-                "heading" : rows[4],
-                "accuracy" : rows[8],
-                "speed" : rows[3],
-                "GeoFence": rows[5],
-                "GPS_Time": rows[6]
-            }              
-            return output
+        output = {}
+        # Execute the select query
+        self.db_cursor.execute(f"SELECT * FROM CurrentBusLocations AS Numeric")
+        # Fetch all the rows
+        rows = self.db_cursor.fetchall()
+        rows = [tuple(row) for row in rows]
+        print(rows)
+        for i in range(len(rows)):
+            output[f'{i}'] = {
+            "id" : rows[i][0],
+            "longitude" : rows[i][1],
+            "latitude" : rows[i][2],
+            "heading" : rows[i][4],
+            "accuracy" : rows[i][7],
+            "speed" : rows[i][3],
+            "GeoFence": rows[i][5],
+            "GPS_Time": rows[i][6]
+            }
+        print(output)
+        # format into our required json        
+        return output
     #todo
     def setBusData(self,data):
         if data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or  data['longitude']< -85 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:
@@ -74,7 +77,7 @@ class DataManager:
             # define and execute sql command to write data
             self.db_cursor.execute(f"INSERT INTO LiveData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
         # call update procedure in db
-        #self.db_cursor.execute("UpdateCurrentBusLocation;")
+        self.db_cursor.execute(f"UPDATE CurrentBusLocations SET GPSTime = GETDATE(), longitude = {data['longitude']}, latitude = {data['latitude']}, heading = {data['heading']}, speed ={data['speed']} where BusID = {data['BusID']}")
         # commit the change
         self.db_connection.commit()
         return True

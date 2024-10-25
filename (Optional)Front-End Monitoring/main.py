@@ -63,7 +63,7 @@ def serverRouting():
         data = request.get_json()
         print("Incoming Update From Bus ", data['BusID'])
         return insertData(data)
-    server.run('0.0.0.0',3000)
+    server.run('0.0.0.0',80)
     
 
 # MAIN:

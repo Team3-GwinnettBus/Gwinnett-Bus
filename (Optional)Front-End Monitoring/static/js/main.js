@@ -69,7 +69,7 @@ async function GetBusData(bus_number) {
 // MAIN:
 
 //create map and define startin zoom
-var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 12);
+var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 10);
 
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -78,7 +78,7 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution:
     '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
-map.setView([33.95332796171439, -83.87374877929688]);
+map.setView([33.953470353472376, -84.02841567993165]);
 //set bus icon
 var busIcon = L.icon({
   iconUrl: "/static/res/school-bus.png",

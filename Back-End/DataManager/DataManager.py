@@ -52,19 +52,19 @@ class DataManager:
         self.db_cursor.execute(f"SELECT * FROM CurrentBusLocations AS Numeric")
         # Fetch all the rows
         rows = self.db_cursor.fetchall()
+        rows = [tuple(row) for row in rows]
         print(rows)
         for i in range(len(rows)):
-            
             output[f'{i}'] = {
-                "id" : rows[i][0],
-            "longitude" : rows[i][1][0],
-            "latitude" : rows[i][2][0],
-            "heading" : rows[i][4][0],
-            "accuracy" : rows[i][7][0],
-            "speed" : rows[i][3][0],
-            "GeoFence": rows[i][5],
-            "GPS_Time": rows[i][6]
-                    }
+            "id" : rows[i][0],
+            "longitude" : rows[i][1],
+            "latitude" : rows[i][2],
+            "heading" : rows[i][4],
+            "accuracy" : rows[i][7],
+            "speed" : rows[i][3],
+            "GeoFence": rows[i],
+            "GPS_Time": rows[i]
+            }
         print(output)
         # format into our required json
         output = {

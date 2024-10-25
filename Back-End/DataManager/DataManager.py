@@ -47,38 +47,37 @@ class DataManager:
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-            output = {}
-            # Execute the select query
-            self.db_cursor.execute(f"SELECT * FROM CurrentBusLocations AS Numeric")
-            # Fetch all the rows
-            rows = self.db_cursor.fetchall()
-            print(rows)
-            for i in range(len(rows)):
-                
-                output[f'{i}'] = {
-                 "id" : rows[i][0],
-                "longitude" : rows[i][1][0],
-                "latitude" : rows[i][2][0],
-                "heading" : rows[i][4][0],
-                "accuracy" : rows[i][7][0],
-                "speed" : rows[i][3][0],
-                "GeoFence": rows[i][5],
-                "GPS_Time": rows[i][6]
-
-                        }
-            print(output)
-            # format into our required json
-            output = {
-                "id" : bus_number,
-                "longitude" : rows[1],
-                "latitude" : rows[2],
-                "heading" : rows[4],
-                "accuracy" : rows[8],
-                "speed" : rows[3],
-                "GeoFence": rows[5],
-                "GPS_Time": rows[6]
-            }              
-            return output
+        output = {}
+        # Execute the select query
+        self.db_cursor.execute(f"SELECT * FROM CurrentBusLocations AS Numeric")
+        # Fetch all the rows
+        rows = self.db_cursor.fetchall()
+        print(rows)
+        for i in range(len(rows)):
+            
+            output[f'{i}'] = {
+                "id" : rows[i][0],
+            "longitude" : rows[i][1][0],
+            "latitude" : rows[i][2][0],
+            "heading" : rows[i][4][0],
+            "accuracy" : rows[i][7][0],
+            "speed" : rows[i][3][0],
+            "GeoFence": rows[i][5],
+            "GPS_Time": rows[i][6]
+                    }
+        print(output)
+        # format into our required json
+        output = {
+            "id" : bus_number,
+            "longitude" : rows[1],
+            "latitude" : rows[2],
+            "heading" : rows[4],
+            "accuracy" : rows[8],
+            "speed" : rows[3],
+            "GeoFence": rows[5],
+            "GPS_Time": rows[6]
+        }              
+        return output
     #todo
     def setBusData(self,data):
         if data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or  data['longitude']< -85 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0:

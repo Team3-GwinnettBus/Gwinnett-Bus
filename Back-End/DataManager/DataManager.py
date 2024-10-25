@@ -62,8 +62,8 @@ class DataManager:
             "heading" : rows[i][4],
             "accuracy" : rows[i][7],
             "speed" : rows[i][3],
-            "GeoFence": rows[i],
-            "GPS_Time": rows[i]
+            "GeoFence": rows[i][5],
+            "GPS_Time": rows[i][6]
             }
         print(output)
         # format into our required json        

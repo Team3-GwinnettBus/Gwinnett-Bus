@@ -69,7 +69,7 @@ async function GetBusData(bus_number) {
 // MAIN:
 
 //create map and define startin zoom
-var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 10);
+var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 12);
 
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {

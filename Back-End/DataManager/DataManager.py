@@ -47,12 +47,26 @@ class DataManager:
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-            
+            output = {}
             # Execute the select query
-            self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY LastUpdated DESC) AS rn FROM CurrentBusLocations ) AS subquery WHERE rn = {bus_number};")
+            self.db_cursor.execute(f"SELECT * FROM CurrentBusLocations AS Numeric")
             # Fetch all the rows
-            rows = self.db_cursor.fetchall()[0]
+            rows = self.db_cursor.fetchall()
             print(rows)
+            for i in range(len(rows)):
+                
+                output[f'{i}'] = {
+                 "id" : rows[i][0],
+                "longitude" : rows[i][1][0],
+                "latitude" : rows[i][2][0],
+                "heading" : rows[i][4][0],
+                "accuracy" : rows[i][7][0],
+                "speed" : rows[i][3][0],
+                "GeoFence": rows[i][5],
+                "GPS_Time": rows[i][6]
+
+                        }
+            print(output)
             # format into our required json
             output = {
                 "id" : bus_number,

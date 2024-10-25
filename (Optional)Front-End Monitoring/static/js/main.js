@@ -32,14 +32,18 @@ async function GetBusData(bus_number) {
       }).toString()
   );
   const values = await response.json();
-  var lng = values.longitude;
-  var lat = values.latitude;
-  var accuracyRadius = values.accuracy;
+  for (const key in values) {
+    var lng = key.longitude;
+    var lat = key.latitude;
+    var accuracyRadius = key.accuracy;
+
+    busmarkers[parseInt(key)][0].setLatLng([lat, lng]);
+    busmarkers[parseInt(key)][0].setRadius(accuracyRadius);
+    busmarkers[parseInt(key)][1].setLatLng([lat, lng]);
+  }
+  //map.setView([lat, lng]);
   //update center, circle, and marker/icon
-  map.setView([lat, lng]);
-  radius.setLatLng([lat, lng]);
-  radius.setRadius(accuracyRadius);
-  marker.setLatLng([lat, lng]);
+
   console.log(values);
 }
 
@@ -82,8 +86,13 @@ var busIcon = L.icon({
   iconAnchor: [28, 70],
 });
 //define map variables (circle and marker)
-var radius = L.circle([0, 0], { radius: 1000 }, { icon: busIcon }).addTo(map);
-var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
+const busmarkers = [];
+for (let i = 0; i < 50; i++) {
+  var radius = L.circle([0, 0], { radius: 1000 }, { icon: busIcon }).addTo(map);
+  var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
+  busmarkers.push([marker, radius]);
+}
+
 //call function
 
 //update every second

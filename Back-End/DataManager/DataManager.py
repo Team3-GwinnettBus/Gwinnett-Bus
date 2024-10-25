@@ -55,7 +55,7 @@ class DataManager:
         rows = [tuple(row) for row in rows]
         print(rows)
         for i in range(len(rows)):
-            output[f'{i}'] = {
+            output+= {
             "id" : rows[i][0],
             "longitude" : rows[i][1],
             "latitude" : rows[i][2],

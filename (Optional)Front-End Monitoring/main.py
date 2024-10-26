@@ -63,7 +63,7 @@ def serverRouting():
         data = request.get_json()
         print("Incoming Update From Bus ", data['BusID'])
         return insertData(data)
-    server.run('0.0.0.0',3000)
+    
     
 
 # MAIN:
@@ -73,3 +73,5 @@ routingProcess.start()
 #create event streaming thread
 eventStreamingProcess = threading.Thread(target=eventStreaming)
 eventStreamingProcess.start()
+if __name__ == "__main__":
+    server.run('0.0.0.0',3000)

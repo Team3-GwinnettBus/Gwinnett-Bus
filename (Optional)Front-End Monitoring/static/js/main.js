@@ -71,8 +71,10 @@ async function GetBusData(bus_number) {
 //create map and define startin zoom
 var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 11.5);
 const defaultView = [33.953470353472376, -84.02841567993165];
+const defaultZoom = 11.5;
 document.getElementById("recenter").addEventListener("click", () => {
-  map.setView([33.953470353472376, -84.02841567993165]);
+  map.setView(defaultView);
+  map.setZoom(defaultZoom);
 });
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {

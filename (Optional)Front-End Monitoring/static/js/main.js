@@ -100,8 +100,7 @@ for (let i = 0; i < 50; i++) {
     var latLngs = [marker.getLatLng()];
     var markerBounds = L.latLngBounds(latLngs);
     map.fitBounds(markerBounds);
-    document.querySelector(".info_header").innerHTML =
-      "" + busmarkers.indexOf([marker, radius] + " is on schedule.");
+    document.querySelector(".info_header").innerHTML = i + " is on schedule.";
   });
   busmarkers.push([marker, radius]);
 }

@@ -75,6 +75,7 @@ const defaultZoom = 11.5;
 document.getElementById("recenter").addEventListener("click", () => {
   map.setView(defaultView);
   map.setZoom(defaultZoom);
+  document.querySelector(".info_header").innerHTML = "OVERVIEW OF BUS ACTIVITY";
 });
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -99,10 +100,8 @@ for (let i = 0; i < 50; i++) {
     var latLngs = [marker.getLatLng()];
     var markerBounds = L.latLngBounds(latLngs);
     map.fitBounds(markerBounds);
-    document.querySelector(".info_header").innerHTML = busmarkers.indexOf([
-      marker,
-      radius,
-    ]);
+    document.querySelector(".info_header").innerHTML =
+      "" + busmarkers.indexOf([marker, radius] + " is on schedule.");
   });
   busmarkers.push([marker, radius]);
 }

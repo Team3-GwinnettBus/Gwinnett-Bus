@@ -113,4 +113,7 @@ function endLoader() {
   // hide the loader and show the updated info panel
   document.getElementById("loader").style.display = "none";
   document.getElementById("info").style.display = "block";
+  document.getElementById("recenter").onclick((e) => {
+    map.setView([33.953470353472376, -84.02841567993165]);
+  });
 }

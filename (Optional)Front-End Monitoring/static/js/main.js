@@ -99,6 +99,10 @@ for (let i = 0; i < 50; i++) {
     var latLngs = [marker.getLatLng()];
     var markerBounds = L.latLngBounds(latLngs);
     map.fitBounds(markerBounds);
+    document.querySelector(".info_header").innerHTML = busmarkers.indexOf([
+      marker,
+      radius,
+    ]);
   });
   busmarkers.push([marker, radius]);
 }

@@ -91,7 +91,9 @@ for (let i = 0; i < 50; i++) {
   var radius = L.circle([0, 0], { radius: 20 }, { icon: busIcon }).addTo(map);
   var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
   marker.on("click", () => {
-    map.setView(marker.getLatLong());
+    var latLngs = [marker.getLatLng()];
+    var markerBounds = L.latLngBounds(latLngs);
+    map.fitBounds(markerBounds);
   });
   busmarkers.push([marker, radius]);
 }

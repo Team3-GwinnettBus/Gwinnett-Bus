@@ -70,7 +70,7 @@ async function GetBusData(bus_number) {
 
 //create map and define startin zoom
 var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 11.5);
-
+const defaultView = [33.953470353472376, -84.02841567993165];
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 15,
@@ -90,6 +90,9 @@ const busmarkers = [];
 for (let i = 0; i < 50; i++) {
   var radius = L.circle([0, 0], { radius: 20 }, { icon: busIcon }).addTo(map);
   var marker = L.marker([0, 0], { icon: busIcon }).addTo(map);
+  marker.on("click", () => {
+    map.setView(marker.getCenter());
+  });
   busmarkers.push([marker, radius]);
 }
 

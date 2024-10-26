@@ -47,31 +47,13 @@ async function GetBusData(bus_number) {
   console.log(map.getCenter());
 }
 
-// async function setBusData(id_num, long, lat, heading, accuracyMeters, mph) {
-//   const data = {
-//     id: id_num,
-//     longitude: long,
-//     latitude: lat,
-//     heading: heading,
-//     speed: mph,
-//   };
-//   const options = {
-//     method: "POST",
-//     body: JSON.stringify(data),
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//   };
-//   let response = await fetch("/updateBusData", options);
-//   console.log(await response.json());
-//   console.log("data send");
-// }
 // MAIN:
 
-//create map and define startin zoom
+//create map and define default zoom and view
 var map = L.map("map").setView([33.891792443690065, -84.0392303466797], 11.5);
 const defaultView = [33.953470353472376, -84.02841567993165];
 const defaultZoom = 11.5;
+// add functionality to recenter buttion
 document.getElementById("recenter").addEventListener("click", () => {
   map.setView(defaultView);
   map.setZoom(defaultZoom);
@@ -91,7 +73,7 @@ var busIcon = L.icon({
   iconSize: [70, 80],
   iconAnchor: [28, 70],
 });
-//define map variables (circle and marker)
+//define map variables (circle and marker) as well zoom on click feature
 const busmarkers = [];
 for (let i = 0; i < 50; i++) {
   var radius = L.circle([0, 0], { radius: 20 }, { icon: busIcon }).addTo(map);
@@ -106,9 +88,7 @@ for (let i = 0; i < 50; i++) {
   busmarkers.push([marker, radius]);
 }
 
-//call function
-
-//update every second
+//call GetBusData every second
 setInterval(() => {
   try {
     GetBusData(1).then(endLoader);

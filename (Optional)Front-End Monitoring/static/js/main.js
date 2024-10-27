@@ -81,7 +81,12 @@ for (let i = 0; i < 50; i++) {
   marker.on("click", () => {
     var latLngs = [marker.getLatLng()];
     var markerBounds = L.latLngBounds(latLngs);
-    map.fitBounds(markerBounds);
+    map.setView(markerBounds, map.getZoom(), {
+      animate: true,
+      pan: {
+        duration: 10,
+      },
+    });
     document.querySelector(".info_header").innerHTML =
       "Bus " + (i + 1) + " is on schedule.";
   });

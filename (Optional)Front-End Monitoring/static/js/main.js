@@ -81,7 +81,7 @@ for (let i = 0; i < 50; i++) {
   marker.on("click", () => {
     var latLngs = [marker.getLatLng()];
     var markerBounds = L.latLngBounds(latLngs);
-    map.setView(marker.latlng, map.getZoom(), {
+    map.setView(markerBounds, 5, {
       animate: true,
       pan: {
         duration: 10,

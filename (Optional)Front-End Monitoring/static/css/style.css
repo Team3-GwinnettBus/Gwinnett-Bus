@@ -84,7 +84,7 @@ img {
   border-color: white;
 }
 /*view backend button css*/
-.viewBackend {
+.recenter {
   border: 3px solid #000;
   padding: 10px;
   font-size: 18px;
@@ -99,7 +99,7 @@ img {
   border-color: white;
 }
 /*makes it so when you hover over the button it makes mouse look like clinking a link*/
-.viewBackend:hover {
+.recenter:hover {
   cursor: pointer;
 }
 /* holds buttons (obv)*/

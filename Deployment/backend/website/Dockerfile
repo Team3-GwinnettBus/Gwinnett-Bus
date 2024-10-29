@@ -17,7 +17,7 @@ RUN apt-get update && \
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install fastapi uvicorn pyodbc
+    pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy
 
 # Create working directory
 WORKDIR /app

@@ -1,11 +1,13 @@
 # Imports
-from fastapi import FastAPI, File, Form
+from fastapi import FastAPI, File, Form, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import sys
 import os
 import pyodbc
+from consumer.consumer import consumer_loop
+import threading
 
 # Creating a fastapi app
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -30,34 +32,40 @@ def get_db_connection():
                           'TrustServerCertificate=yes;')
     return conn
 
+@app.on_event("startup")
+async def startup_event():
+    threading.Thread(target=consumer_loop, daemon=True).start()
 
 # authentication
 @app.get("/auth")
 async def auth(email: str, password: str):
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        # for now just fetch buses id
+        return {"status": "good", "message": "Login successful", "busID": int(email)}
+        
+        # conn = get_db_connection()
+        # cursor = conn.cursor()
 
-        # Fetch the password and BusID from the database based on the email
-        cursor.execute("SELECT PasswordHash, BusID FROM Auth WHERE Email = ?", email)
-        row = cursor.fetchone()
+        # # Fetch the password and BusID from the database based on the email
+        # cursor.execute("SELECT PasswordHash, BusID FROM Auth WHERE Email = ?", email)
+        # row = cursor.fetchone()
 
-        # If no row is found, the email is not valid
-        if row is None:
-            return {"status": "fail", "message": "Email not found"}
+        # # If no row is found, the email is not valid
+        # if row is None:
+        #     return {"status": "fail", "message": "Email not found"}
 
-        # If the password matches, return success with BusID
-        if row[0] == password:
-            return {"status": "good", "message": "Login successful", "busID": row[1]}
+        # # If the password matches, return success with BusID
+        # if row[0] == password:
+        #     return {"status": "good", "message": "Login successful", "busID": row[1]}
 
-        # If the password doesn't match
-        return {"status": "bad", "message": "Incorrect password"}
+        # # If the password doesn't match
+        # return {"status": "bad", "message": "Incorrect password"}
 
     except Exception as e:
         return {"status": "error", "message": str(e)}
-    finally:
-        cursor.close()
-        conn.close()
+    # finally:
+    #     cursor.close()
+    #     conn.close()
 
 
 # get current location object from bus id

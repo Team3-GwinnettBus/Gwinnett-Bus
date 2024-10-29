@@ -116,7 +116,8 @@ const Map = () => {
   // Fetch and update bus data every 3 seconds
   useEffect(() => {
     const intervalId = setInterval(async () => {
-      const busData = await fetchBusData(1);
+      const busID = localStorage.getItem("busID");
+      const busData = await fetchBusData(busID);
       if (busData && marker && radius && map) {
         // Update marker and radius position
         map.setView([busData.lat, busData.lng]);
@@ -147,6 +148,16 @@ const Map = () => {
           <p>Direction: {direction} degrees</p>
           <p>Last Updated: {recent}</p>
         </div>
+        <button
+          onClick={() => {
+            localStorage.clear();
+            window.location.reload();
+          }}
+          className="m-4 px-10 py-2 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75"
+        >
+          {" "}
+          Logout{" "}
+        </button>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import json
 import time
 from kafka import KafkaProducer
-from datasim.simpledatasim import Bus
-from datasim.bussim import Bus
+# from datasim.simpledatasim import Bus
+# from datasim.bussim import Bus
 
 # Kafka Producer setup
 TOPIC = 'GCPS_Bus_Monitoring'
@@ -18,23 +18,26 @@ producer = KafkaProducer(
     batch_size=32 * 1024  # 32KB batch size
 )
 
-def send_data(producer, topic, data):
+def send_data(data):
     """Send the bus data to Kafka."""
-    producer.send(topic, value=data)
+    producer.send(TOPIC, value=data)
 
-# Create an instance of the Bus simulation
-bus = Bus(asset_id=1)  # You can change the asset_id as needed
+def flush():
+    producer.flush()
 
-# Simulation loop to send bus data every second
-for _ in range(150):  # Simulate for 150 seconds (adjust as necessary)
-    bus.update_location()
-    data = bus.get_data()
-    send_data(producer, TOPIC, data)
-    time.sleep(1)  # Wait for 1 second before sending the next update
+# # Create an instance of the Bus simulation
+# bus = Bus(asset_id=1)  # You can change the asset_id as needed
 
-# Ensure all messages are sent to Kafka before exiting
-producer.flush()
-print("Bus simulation complete.")
+# # Simulation loop to send bus data every second
+# for _ in range(150):  # Simulate for 150 seconds (adjust as necessary)
+#     bus.update_location()
+#     data = bus.get_data()
+#     send_data(producer, TOPIC, data)
+#     time.sleep(1)  # Wait for 1 second before sending the next update
+
+# # Ensure all messages are sent to Kafka before exiting
+# producer.flush()
+# print("Bus simulation complete.")
 
 
 # # Create a Bus instance

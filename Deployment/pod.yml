@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bus-project-pod
+spec:
+  containers:
+  - name: bus-project-producer
+    image: localhost/bus-project-producer  # Local image reference
+
+  # - name: bus-project-consumer
+  #   image: localhost/bus-project-consumer  # Local image reference
+
+  - name: bus-project-web
+    image: localhost/bus-project-web       # Local image reference
+    ports:
+    - containerPort: 8000                  # Expose port 8000 internally
+      hostPort: 8000 

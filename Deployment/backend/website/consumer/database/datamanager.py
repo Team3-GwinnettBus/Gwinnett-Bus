@@ -67,6 +67,19 @@ class DataManager:
             return output
 
     def setBusData(self, data):
+        # Check if the BusID already exists in the database
+        self.db_cursor.execute(f"SELECT COUNT(*) FROM CurrentBusLocations WHERE BusID = {data['BusID']}")
+        exists = self.db_cursor.fetchone()[0]
+
+        if exists == 0:
+            # Insert new BusID into CurrentBusLocations if not found
+            print(f"BusID {data['BusID']} not found in CurrentBusLocations. Adding new entry.")
+            self.db_cursor.execute(
+                f"INSERT INTO CurrentBusLocations (BusID, longitude, latitude, heading, speed, GPSTime, GeoFence) "
+                f"VALUES ({data['BusID']}, {data['longitude']}, {data['latitude']}, {data['heading']}, "
+                f"{data['speed']}, GETDATE(), 'GeoFenceDataHere');"
+            )
+        
         if False: #(data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or data['longitude'] > -80 or   data['longitude']< -84 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0): 
             print("anomaly detected in data.",data['BusID'],data['longitude'] ,data['latitude'],data['heading'],data['speed'])
             self.db_cursor.execute(f"INSERT INTO InvalidData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")

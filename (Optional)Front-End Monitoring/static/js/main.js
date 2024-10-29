@@ -58,6 +58,7 @@ document.getElementById("recenter").addEventListener("click", () => {
   map.setView(defaultView);
   map.setZoom(defaultZoom);
   document.querySelector(".info_header").innerHTML = "OVERVIEW OF BUS ACTIVITY";
+  document.querySelector(".info_content").innerHTML = "Sam is 5 min away";
 });
 //add open street map layer as map view
 L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -84,6 +85,7 @@ for (let i = 0; i < 50; i++) {
     map.fitBounds(markerBounds);
     document.querySelector(".info_header").innerHTML =
       "Bus " + (i + 1) + " is on schedule.";
+    document.querySelector(".info_content").innerHTML = "Sam is 5 min away";
   });
   busmarkers.push([marker, radius]);
 }

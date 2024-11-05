@@ -1,4 +1,5 @@
 import asyncio
+import csv
 import networkx
 import osmnx
 import pickle
@@ -13,15 +14,32 @@ if KAFKA_MODE:
 # Load saved graph or create new graph from location and ensure its strongly connected
 network = osmnx.load_graphml('MapData/gwinnett.graphml')
 
+school_nodes = []
+
 # Load edge dictionary from file
 with open('MapData/edge_data.pkl', 'rb') as f:
     edges = pickle.load(f)
 
+MAX_PATH_LENGTH = 5000
+
 
 # Generate a random path from random locations on the graph
 def get_path():
-    nodes = list(network.nodes())
-    return networkx.shortest_path(network, random.choice(nodes), random.choice(nodes))
+    start_node = random.choice(school_nodes)
+    path = [start_node]
+    length = 0
+    num_nodes = 0
+
+    while length < MAX_PATH_LENGTH:
+        neighbors = list(networkx.neighbors(network, path[num_nodes]))
+        next_node = random.choice(neighbors)
+        edge = edges.get((path[num_nodes], next_node))
+        length += edge['length']
+        path.append(next_node)
+        print("Length:", length)
+
+    print(path)
+    return path
 
 
 class Bus:
@@ -128,9 +146,18 @@ class DataCollector:
         # flush()
 
 
+def find_school_nodes():
+    with open('MapData/school_data.csv', 'r') as school_data:
+        for line in csv.DictReader(school_data):
+            node = osmnx.nearest_nodes(network, float(line['longitude']), float(line['latitude']))
+            school_nodes.append(node)
+
+
 async def main():
+    find_school_nodes()
+
     update_queue = asyncio.Queue()
-    num_buses = 100
+    num_buses = 1
 
     buses = [Bus(i + 1, update_queue) for i in range(num_buses)]
     bus_tasks = [asyncio.create_task(bus.run()) for bus in buses]

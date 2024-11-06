@@ -4,7 +4,7 @@ import networkx
 import osmnx
 import pickle
 import random
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 KAFKA_MODE = False
 
@@ -16,6 +16,8 @@ network = osmnx.load_graphml('MapData/gwinnett.graphml')
 
 school_nodes = []
 
+current_time = datetime.now(timezone.utc)
+
 # Load edge dictionary from file
 with open('MapData/edge_data.pkl', 'rb') as f:
     edges = pickle.load(f)
@@ -23,20 +25,31 @@ with open('MapData/edge_data.pkl', 'rb') as f:
 MAX_PATH_LENGTH = 5000
 
 
-# Generate a random path from random locations on the graph
+# Generate a random path from a random school
 def get_path():
+    # Select a random school as starting location
     start_node = random.choice(school_nodes)
     path = [start_node]
     length = 0
-    num_nodes = 0
 
+    # Add nodes to path as long as it until it surpasses desired length
     while length < MAX_PATH_LENGTH:
-        neighbors = list(networkx.neighbors(network, path[num_nodes]))
+        # Get all neighbors excluding nodes already in path
+        adjacent_nodes = list(networkx.neighbors(network, path[-1]))
+        neighbors = [n for n in adjacent_nodes if n not in path]
+
+        if not neighbors:
+            # Backtrack is there no other option
+            if len(path) > 1:
+                neighbors = adjacent_nodes
+            else:
+                return get_path()
+
+        # Add new edge to path
         next_node = random.choice(neighbors)
-        edge = edges.get((path[num_nodes], next_node))
+        edge = edges.get((path[-1], next_node))
         length += edge['length']
         path.append(next_node)
-        num_nodes += 1
         print("Length:", length)
 
     print(path)
@@ -51,7 +64,7 @@ class Bus:
         self.update_queue = update_queue
         self.location = {}
 
-        speed = random.randint(5, 20)
+        speed = random.randint(20, 25)
         self.speed = {
             "gpsSpeedMetersPerSecond": speed,
             "ecuSpeedMetersPerSecond": speed
@@ -73,14 +86,12 @@ class Bus:
 
         # Check if bus finished path
         while self.current_node < len(self.path) - 1:
-            print(self.path[self.current_node], self.path[self.current_node + 1])
             current_edge = edges.get((self.path[self.current_node], self.path[self.current_node + 1]))
             edge_length = current_edge['length']
             edge_angle = current_edge['heading']
 
             # If there's enough distance to cover the current edge
             if self.distance_along_edge >= edge_length:
-                print("Moving to next edge")
                 # Move to the next node
                 self.distance_along_edge -= edge_length
                 self.current_node += 1
@@ -114,8 +125,10 @@ class Bus:
 
     # Return data as formatted in Samsara API
     def get_data(self):
+        global current_time
+
         return {
-            "happenedAtTime": datetime.now(timezone.utc).isoformat(timespec='seconds'),
+            "happenedAtTime": current_time.isoformat(timespec='seconds'),
             "asset": self.asset_id,
             "location": self.location,
             "speed": self.speed
@@ -156,11 +169,26 @@ def find_school_nodes():
             school_nodes.append(node)
 
 
+async def start_clock():
+    global current_time
+
+    # Initialize time to 6:15 AM EST
+    current_time = datetime.now(timezone.utc).replace(hour=11, minute=15)
+
+    # Start clock
+    while True:
+        await asyncio.sleep(1)
+
+        current_time += timedelta(seconds=1)
+
+
 async def main():
     find_school_nodes()
 
     update_queue = asyncio.Queue()
-    num_buses = 1
+    num_buses = 1500
+
+    timing_task = asyncio.create_task(start_clock())
 
     buses = [Bus(i + 1, update_queue) for i in range(num_buses)]
     bus_tasks = [asyncio.create_task(bus.run()) for bus in buses]

@@ -36,6 +36,7 @@ def get_path():
         edge = edges.get((path[num_nodes], next_node))
         length += edge['length']
         path.append(next_node)
+        num_nodes += 1
         print("Length:", length)
 
     print(path)
@@ -72,12 +73,14 @@ class Bus:
 
         # Check if bus finished path
         while self.current_node < len(self.path) - 1:
+            print(self.path[self.current_node], self.path[self.current_node + 1])
             current_edge = edges.get((self.path[self.current_node], self.path[self.current_node + 1]))
             edge_length = current_edge['length']
             edge_angle = current_edge['heading']
 
             # If there's enough distance to cover the current edge
             if self.distance_along_edge >= edge_length:
+                print("Moving to next edge")
                 # Move to the next node
                 self.distance_along_edge -= edge_length
                 self.current_node += 1

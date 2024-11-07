@@ -22,42 +22,14 @@ current_time = datetime.now(timezone.utc)
 with open('MapData/edge_data.pkl', 'rb') as f:
     edges = pickle.load(f)
 
-MAX_PATH_LENGTH = 5000
-
-
-# Generate a random path from a random school
-def get_path():
-    # Select a random school as starting location
-    start_node = random.choice(school_nodes)
-    path = [start_node]
-    length = 0
-
-    # Add nodes to path as long as it until it surpasses desired length
-    while length < MAX_PATH_LENGTH:
-        # Get all neighbors excluding nodes already in path
-        adjacent_nodes = list(networkx.neighbors(network, path[-1]))
-        neighbors = [n for n in adjacent_nodes if n not in path]
-
-        if not neighbors:
-            # Backtrack is there no other option
-            if len(path) > 1:
-                neighbors = adjacent_nodes
-            else:
-                return get_path()
-
-        # Add new edge to path
-        next_node = random.choice(neighbors)
-        edge = edges.get((path[-1], next_node))
-        length += edge['length']
-        path.append(next_node)
-        print("Length:", length)
-
-    print(path)
-    return path
+MAX_PATH_LENGTH = 5000  # Meters
 
 
 class Bus:
     def __init__(self, asset_id, update_queue):
+        self.school_id = None
+        self.route_completed = False
+
         self.asset_id = {
             "id": asset_id
         }
@@ -70,15 +42,46 @@ class Bus:
             "ecuSpeedMetersPerSecond": speed
         }
 
-        self.path = get_path()
+        self.path = self.get_path()
         self.current_node = 0
         self.distance_along_edge = 0.0
 
     async def run(self):
-        while True:
+        while not self.route_completed:
             self.update_location()
             await self.update_queue.put(self.get_data())
             await asyncio.sleep(5)
+
+    # Generate a random path from a random school
+    def get_path(self):
+        # Select a random school as starting location
+        start_node = random.choice(school_nodes)
+        self.school_id = start_node
+        path = [start_node]
+        length = 0
+
+        # Add nodes to path as long as it until it surpasses desired length
+        while length < MAX_PATH_LENGTH:
+            # Get all neighbors excluding nodes already in path
+            adjacent_nodes = list(networkx.neighbors(network, path[-1]))
+            neighbors = [n for n in adjacent_nodes if n not in path]
+
+            if not neighbors:
+                # Backtrack is there no other option
+                if len(path) > 1:
+                    neighbors = adjacent_nodes
+                else:
+                    return self.get_path()
+
+            # Add new edge to path
+            next_node = random.choice(neighbors)
+            edge = edges.get((path[-1], next_node))
+            length += edge['length']
+            path.append(next_node)
+            print("Length:", length)
+
+        print(path)
+        return path
 
     def update_location(self):
         # Calculate how far vehicle traveled in past 5 seconds
@@ -119,9 +122,15 @@ class Bus:
 
         # Get new path
         if self.current_node >= len(self.path) - 1:
-            self.path = get_path()
-            self.current_node = 0
-            self.distance_along_edge = 0.0
+            # Get path to return to school
+            if self.path[-1] == self.school_id:
+                self.path = networkx.shortest_path(network, self.path[-1], self.school_id)
+                self.current_node = 0
+                self.distance_along_edge = 0.0
+            else:
+                # End bus travel
+                print("Route Completed for", self.asset_id)
+                self.route_completed = True
 
     # Return data as formatted in Samsara API
     def get_data(self):
@@ -197,6 +206,8 @@ async def main():
     collector_task = asyncio.create_task(collector.run())
 
     await asyncio.gather(*bus_tasks, collector_task)
+
+    print("Simulation Complete")
 
 
 if __name__ == "__main__":

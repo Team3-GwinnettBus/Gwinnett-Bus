@@ -32,6 +32,7 @@ async function GetBusData(bus_number) {
       }).toString()
   );
   const values = await response.json();
+  console.log(values);
   for (const key in values) {
     var lng = values[key].longitude;
     var lat = values[key].latitude;

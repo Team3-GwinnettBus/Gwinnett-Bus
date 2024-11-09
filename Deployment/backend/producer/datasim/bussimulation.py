@@ -207,7 +207,7 @@ async def main():
     find_school_nodes()
 
     update_queue = asyncio.Queue()
-    num_buses = 35
+    num_buses = 100
 
     timing_task = asyncio.create_task(start_clock())
 

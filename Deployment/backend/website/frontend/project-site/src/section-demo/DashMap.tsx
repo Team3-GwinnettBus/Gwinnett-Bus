@@ -127,7 +127,7 @@ const DashMap = () => {
     const initialMarkers = [];
     const initialRadiusCircles = [];
 
-    const numBuses = 35;
+    const numBuses = 100;
 
     for (let i = 0; i < numBuses; i++) {
       const marker = L.circleMarker([0, 0], {

@@ -84,7 +84,7 @@ async def get_all_buses():
     cursor = conn.cursor()
 
     # Fetch all buses with IDs 1 to 50
-    cursor.execute("SELECT * FROM CurrentBusLocations WHERE BusID BETWEEN 1 AND 35")
+    cursor.execute("SELECT * FROM CurrentBusLocations WHERE BusID BETWEEN 1 AND 100")
     rows = cursor.fetchall()
 
     if rows:

@@ -1,10 +1,11 @@
 import asyncio
+import csv
 import networkx
 import osmnx
 import pickle
 import random
+from datetime import datetime, timezone, timedelta
 import os
-from datetime import datetime, timezone
 
 KAFKA_MODE = True
 
@@ -17,43 +18,82 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 # Construct the path to the graphml file and edge data file
 graphml_path = os.path.join(current_dir, 'mapdata', 'gwinnett.graphml')
 edge_data_path = os.path.join(current_dir, 'mapdata', 'edge_data.pkl')
+school_data_path = os.path.join(current_dir, 'mapdata', 'school_data.csv')
 
 # Load the network from the graphml file
 network = osmnx.load_graphml(graphml_path)
+
+school_nodes = []
+current_time = datetime.now(timezone.utc)
 
 # Load edge dictionary from the edge_data.pkl file
 with open(edge_data_path, 'rb') as f:
     edges = pickle.load(f)
 
-# Generate a random path from random locations on the graph
-def get_path():
-    nodes = list(network.nodes())
-    return networkx.shortest_path(network, random.choice(nodes), random.choice(nodes))
+# # Generate a random path from random locations on the graph
+# def get_path():
+#     nodes = list(network.nodes())
+#     return networkx.shortest_path(network, random.choice(nodes), random.choice(nodes))
 
+MAX_PATH_LENGTH = 5000  # Meters
 
 class Bus:
     def __init__(self, asset_id, update_queue):
+        self.school_id = None
+        self.route_completed = False
+
         self.asset_id = {
-            "BusID": asset_id
+            "id": asset_id
         }
         self.update_queue = update_queue
         self.location = {}
 
-        speed = random.randint(5, 20)
+        speed = random.randint(20, 25)
         self.speed = {
             "gpsSpeedMetersPerSecond": speed,
             "ecuSpeedMetersPerSecond": speed
         }
 
-        self.path = get_path()
+        self.path = self.get_path()
         self.current_node = 0
         self.distance_along_edge = 0.0
 
     async def run(self):
-        while True:
+        while not self.route_completed:
             self.update_location()
             await self.update_queue.put(self.get_data())
             await asyncio.sleep(5)
+
+    # Generate a random path from a random school
+    def get_path(self):
+        # Select a random school as starting location
+        start_node = random.choice(school_nodes)
+        self.school_id = start_node
+        path = [start_node]
+        length = 0
+
+        # Add nodes to path as long as it until it surpasses desired length
+        while length < MAX_PATH_LENGTH:
+            # Get all neighbors excluding nodes already in path
+            adjacent_nodes = list(networkx.neighbors(network, path[-1]))
+            neighbors = [n for n in adjacent_nodes if n not in path]
+
+            if not neighbors:
+                # Backtrack is there no other option
+                if len(path) > 1:
+                    neighbors = adjacent_nodes
+                else:
+                    return self.get_path()
+
+            # Add new edge to path
+            next_node = random.choice(neighbors)
+            edge = edges.get((path[-1], next_node))
+            length += edge['length']
+            path.append(next_node)
+            print("Length:", length)
+
+        print(path)
+        return path
 
     def update_location(self):
         # Calculate how far vehicle traveled in past 5 seconds
@@ -94,21 +134,25 @@ class Bus:
 
         # Get new path
         if self.current_node >= len(self.path) - 1:
-            self.path = get_path()
-            self.current_node = 0
-            self.distance_along_edge = 0.0
+            # Get path to return to school
+            if self.path[-1] == self.school_id:
+                self.path = networkx.shortest_path(network, self.path[-1], self.school_id)
+                self.current_node = 0
+                self.distance_along_edge = 0.0
+            else:
+                # End bus travel
+                print("Route Completed for", self.asset_id)
+                self.route_completed = True
 
     # Return data as formatted in Samsara API
     def get_data(self):
+        global current_time
+
         return {
-            "BusID": self.asset_id["BusID"],
-            "latitude": self.location["latitude"],
-            "longitude": self.location["longitude"],
-            "heading": self.location["headingDegrees"],
-            "accuracy": self.location["accuracyMeters"],
-            "speed": self.speed["gpsSpeedMetersPerSecond"],
-            "geofence": "Geofence",
-            "GPS_Time": datetime.now(timezone.utc).isoformat(timespec='seconds')
+            "happenedAtTime": current_time.isoformat(timespec='seconds'),
+            "asset": self.asset_id,
+            "location": self.location,
+            "speed": self.speed
         }
 
 
@@ -133,15 +177,39 @@ class DataCollector:
             send_data(update)
 
             # Prints bus data of bus 1 for debugging
-            if update['BusID'] == {"BusID": 1}:
+            if update['asset'] == {"id": 1}:
                 print(update)
 
         flush()
 
 
+def find_school_nodes():
+    with open(school_data_path, 'r') as school_data:
+        for line in csv.DictReader(school_data):
+            node = osmnx.nearest_nodes(network, float(line['longitude']), float(line['latitude']))
+            school_nodes.append(node)
+
+
+async def start_clock():
+    global current_time
+
+    # Initialize time to 6:15 AM EST
+    current_time = datetime.now(timezone.utc).replace(hour=11, minute=15)
+
+    # Start clock
+    while True:
+        await asyncio.sleep(1)
+
+        current_time += timedelta(seconds=1)
+
+
 async def main():
+    find_school_nodes()
+
     update_queue = asyncio.Queue()
-    num_buses = 300
+    num_buses = 35
+
+    timing_task = asyncio.create_task(start_clock())
 
     buses = [Bus(i + 1, update_queue) for i in range(num_buses)]
     bus_tasks = [asyncio.create_task(bus.run()) for bus in buses]
@@ -150,6 +218,8 @@ async def main():
     collector_task = asyncio.create_task(collector.run())
 
     await asyncio.gather(*bus_tasks, collector_task)
+
+    print("Simulation Complete")
 
 
 if __name__ == "__main__":

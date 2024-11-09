@@ -41,7 +41,7 @@ function Home() {
           {/* Image on the right side */}
           <div className="md:w-1/2 w-full flex justify-center md:justify-end">
             <img
-              src={"src/assets/bus-back.jpeg"}
+              src={"assets/bus-back.jpeg"}
               alt="bus"
               className="rounded-xl w-3/4 m-3"
             />
@@ -55,7 +55,7 @@ function Home() {
           <CarouselContent>
             <CarouselItem>
               <img
-                src={"src/assets/sam-profile.png"}
+                src={"assets/sam-profile.png"}
                 alt="Sam"
                 className="mx-auto rounded-xl"
               />
@@ -68,7 +68,7 @@ function Home() {
             </CarouselItem>
             <CarouselItem>
               <img
-                src={"src/assets/michael-profile.png"}
+                src={"assets/michael-profile.png"}
                 alt="Michael"
                 className="mx-auto rounded-xl"
               />
@@ -81,7 +81,7 @@ function Home() {
             </CarouselItem>
             <CarouselItem>
               <img
-                src={"src/assets/brian-profile.png"}
+                src={"assets/brian-profile.png"}
                 alt="Brian"
                 className="mx-auto rounded-xl"
               />
@@ -94,7 +94,7 @@ function Home() {
             </CarouselItem>
             <CarouselItem>
               <img
-                src={"src/assets/charlie-profile.png"}
+                src={"assets/charlie-profile.png"}
                 alt="Charlie"
                 className="mx-auto rounded-xl"
               />
@@ -107,7 +107,7 @@ function Home() {
             </CarouselItem>
             <CarouselItem>
               <img
-                src={"src/assets/allen-profile.png"}
+                src={"assets/allen-profile.png"}
                 alt="Allen"
                 className="mx-auto rounded-xl"
               />

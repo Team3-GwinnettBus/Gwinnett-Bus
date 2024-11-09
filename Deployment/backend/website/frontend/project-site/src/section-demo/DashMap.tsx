@@ -34,19 +34,25 @@ const DashMap = () => {
   };
 
   // Function to draw squares for schools
-  // Function to draw squares for schools
-  const drawSchoolZones = (leafletMap) => {
+  const drawSchoolZones = (leafletMap: L.Map) => {
     fetch(schoolData)
       .then((response) => response.text())
       .then((csvText) => {
-        const rows = csvText.split("\n").slice(1);
+        const rows = csvText.split("\n").slice(1); // Skip the header row
 
         rows.forEach((row, index) => {
+          // Split the row by commas
           const [school, latitude, longitude] = row.split(",");
 
-          // Trim whitespace and validate the data
-          const lat = parseFloat(latitude?.trim());
-          const lng = parseFloat(longitude?.trim());
+          // Ensure that latitude and longitude are present
+          if (!latitude || !longitude) {
+            console.error(`Missing coordinates at row ${index + 2}: ${row}`);
+            return; // Skip this row if coordinates are missing
+          }
+
+          // Trim whitespace and parse the latitude and longitude
+          const lat = parseFloat(latitude.trim());
+          const lng = parseFloat(longitude.trim());
 
           // Check if lat/lng are valid numbers
           if (isNaN(lat) || isNaN(lng)) {
@@ -66,42 +72,40 @@ const DashMap = () => {
             [lat - offset, lng - offset] as [number, number],
             [lat + offset, lng + offset] as [number, number],
           ];
-          const zone = L.rectangle(bounds, {
-            color: color,
-            weight: 2,
-            fillOpacity: 0.1,
-          });
 
-          // Create a tooltip for the school name
-          const tooltip = zone.bindTooltip(school, {
-            permanent: false,
-            direction: "top",
-            offset: [0, -10],
-            opacity: 0.9,
-          });
+          try {
+            // Create the rectangle zone
+            const zone = L.rectangle(bounds, {
+              color: color,
+              weight: 2,
+              fillOpacity: 0.1,
+            });
 
-          // Show the tooltip on hover
-          zone.on("mouseover", () => {
-            tooltip.openTooltip();
-          });
+            // Create a tooltip for the school name
+            const tooltip = zone.bindTooltip(school, {
+              permanent: false,
+              direction: "top",
+              offset: [0, -10],
+              opacity: 0.9,
+            });
 
-          // Hide the tooltip when not hovering
-          zone.on("mouseout", () => {
-            tooltip.closeTooltip();
-          });
+            // Show the tooltip on hover
+            zone.on("mouseover", () => tooltip.openTooltip());
+            zone.on("mouseout", () => tooltip.closeTooltip());
 
-          // Show the tooltip on right-click
-          zone.on("contextmenu", (e) => {
-            tooltip.openTooltip();
-            e.originalEvent.preventDefault(); // Prevent the default context menu
-          });
+            // Show the tooltip on right-click
+            zone.on("contextmenu", (e) => {
+              tooltip.openTooltip();
+              e.originalEvent.preventDefault();
+            });
 
-          // Hide the tooltip on any other click on the map
-          leafletMap.on("click", () => {
-            tooltip.closeTooltip();
-          });
+            // Hide the tooltip on any other click on the map
+            leafletMap.on("click", () => tooltip.closeTooltip());
 
-          zone.addTo(leafletMap);
+            zone.addTo(leafletMap);
+          } catch (error) {
+            console.error(`Error creating zone for row ${index + 2}:`, error);
+          }
         });
       })
       .catch((error) => console.error("Error loading school data:", error));

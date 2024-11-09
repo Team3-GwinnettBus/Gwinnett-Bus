@@ -23,14 +23,14 @@ def consumer_loop():
 
             # Prepare the data to insert into the database
             data = {
-                'BusID': bus_data['BusID'],  # Example: add BusID if not included in the message (or parse it if present)
-                'latitude': bus_data['latitude'],
-                'longitude': bus_data['longitude'],
-                'speed': bus_data['speed'],  # Default value or retrieve from the message if available
-                'heading': bus_data['heading'],  # Default or retrieve from message
-                'GeoFence': 'none',  # Example: update based on actual data (optional)
-                'GPSTime': bus_data['GPS_Time'],  # Add timestamp or retrieve from message
-                'Accuracy': bus_data['accuracy']
+                'BusID': bus_data['asset']['id'],  # Updated to get the ID from 'asset'
+                'latitude': bus_data['location']['latitude'],
+                'longitude': bus_data['location']['longitude'],
+                'speed': bus_data['speed']['gpsSpeedMetersPerSecond'],
+                'heading': bus_data['location']['headingDegrees'],
+                'GeoFence': 'none',  # Example placeholder
+                'GPSTime': bus_data['happenedAtTime'],
+                'Accuracy': bus_data['location']['accuracyMeters']
             }
 
             # Insert the data using DataManager

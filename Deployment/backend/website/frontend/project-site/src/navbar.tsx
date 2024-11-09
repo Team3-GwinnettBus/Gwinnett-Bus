@@ -60,14 +60,14 @@ export default function Navbar() {
 
         {/* Demo Menu */}
         <MenubarMenu>
-          <MenubarTrigger className="rounded-xl">Login</MenubarTrigger>
+          <MenubarTrigger className="rounded-xl">Monitor</MenubarTrigger>
           <MenubarContent>
             <MenubarItem>
-              <Link to="/map">Parents</Link>
+              <Link to="/map">Bus Map</Link>
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem>
-              <Link to="/dashboard">Admin</Link>
+              <Link to="/dashboard">Dashboard</Link>
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>

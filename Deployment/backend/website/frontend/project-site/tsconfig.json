@@ -5,10 +5,12 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./src/section-demo/"],
     "strict": false,
     "skipLibCheck": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
+    "noImplicitReturns": false,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

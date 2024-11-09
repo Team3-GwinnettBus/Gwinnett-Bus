@@ -11,7 +11,7 @@ RUN apt-get update && \
 
 # Install Python libraries
 RUN pip install --upgrade pip && \
-    pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy
+    pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
 
 # Copy all code and files to the /app directory
 COPY . /app

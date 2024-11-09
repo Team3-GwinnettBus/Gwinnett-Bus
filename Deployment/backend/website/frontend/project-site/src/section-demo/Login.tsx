@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       const response = await fetch(
-        `http://3.132.3.221:8000/auth?email=${email}&password=${password}`,
+        `http://10.96.32.157:8000/auth?email=${email}&password=${password}`,
       );
       const result = await response.json();
 
@@ -38,30 +38,20 @@ export default function Login() {
 
   return (
     <div className="max-w-sm mx-auto mt-10 p-6 bg-background rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Track Bus</h2>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Bus ID</Label>
           <Input
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder="Enter BUS ID"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
         <Button className="w-full" onClick={handleSubmit}>
-          Log In
+          Get Map
         </Button>
       </div>
     </div>

@@ -19,7 +19,7 @@ const Map = () => {
   // Function to fetch bus data
   const fetchBusData = async (busID) => {
     try {
-      const response = await fetch(`http://3.132.3.221:8000/bus/${busID}`);
+      const response = await fetch(`http://10.96.32.157:8000/bus/${busID}`);
       if (!response.ok) {
         throw new Error(`Error: ${response.statusText}`);
       }

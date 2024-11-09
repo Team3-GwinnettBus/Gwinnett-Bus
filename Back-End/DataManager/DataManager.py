@@ -1,5 +1,4 @@
-# Requiremments from gcps include that mySQL is the relational database of choice
-# TODO: format data before returning it (depends on how driver is set up to accept - michael)
+
 
 import pyodbc
 

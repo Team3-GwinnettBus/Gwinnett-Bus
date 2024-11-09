@@ -16,7 +16,7 @@ function Home() {
 
       <LargeCard>
         <br />
-        <YoutubePlayer videoId="6ksd_NNYk3Y" />
+        <YoutubePlayer videoId="2y8sJlBuW6c" />
       </LargeCard>
 
       <LargeCard>

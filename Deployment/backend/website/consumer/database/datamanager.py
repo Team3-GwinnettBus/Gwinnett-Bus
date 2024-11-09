@@ -12,11 +12,11 @@ class QueryErrorException(Exception):
 class DataManager:
     # Connection Variables
     DRIVER = "ODBC Driver 18 for SQL Server"
-    SERVER = "172.31.41.118"
-    DATABASE= "GCPS_Bus" 
+    SERVER = "10.96.32.157"
+    DATABASE= "GCPS_Bus"
     uid = "SA"
     pwd = "HootyHoo!"
-   
+
     # constructor
     def __init__(self):
         # connection string to db (fields are hardcoded but can be added as parameters)
@@ -43,11 +43,11 @@ class DataManager:
         # clean up after done using db
         self.db_cursor.close()
         self.db_connection.close()
-        
+
     # function called to query database for a particular bus
     # input: bus number output:
     def getData(self, bus_number):
-            
+
             # Execute the select query
             self.db_cursor.execute(f"SELECT * FROM ( SELECT *, ROW_NUMBER() OVER (ORDER BY LastUpdated DESC) AS rn FROM CurrentBusLocations ) AS subquery WHERE rn = {bus_number};")
             # Fetch all the rows
@@ -63,7 +63,7 @@ class DataManager:
                 "speed" : rows[3],
                 "GeoFence": rows[5],
                 "GPS_Time": rows[6]
-            }              
+            }
             return output
 
     def setBusData(self, data):
@@ -79,8 +79,8 @@ class DataManager:
                 f"VALUES ({data['BusID']}, {data['longitude']}, {data['latitude']}, {data['heading']}, "
                 f"{data['speed']}, GETDATE(), 'GeoFenceDataHere');"
             )
-        
-        if False: #(data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or data['longitude'] > -80 or   data['longitude']< -84 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0): 
+
+        if False: #(data['BusID']<1 or data['latitude'] < 30 or  data['latitude'] >35 or data['longitude'] > -80 or   data['longitude']< -84 or data['heading'] > 360 or  data['heading']<0 or data['speed']<0):
             print("anomaly detected in data.",data['BusID'],data['longitude'] ,data['latitude'],data['heading'],data['speed'])
             self.db_cursor.execute(f"INSERT INTO InvalidData (GPSTime,BusID,longitude,latitude,heading,speed,GeoFence) VALUES (GETDATE(),{data['BusID']},{data['longitude']},{data['latitude']},{data['heading']},{data['speed']},'GeoFenceDataHere');")
         else:

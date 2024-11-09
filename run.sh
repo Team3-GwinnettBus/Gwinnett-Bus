@@ -1,5 +1,4 @@
-#!/bin/bash
-cd ~
+#!/bin/bash cd ~
 cd Gwinnett-Bus/Back-End/Producer/
 ./bussim.sh &
 

@@ -16,7 +16,7 @@ export default function Login() {
 
     try {
       const response = await fetch(
-        `http://3.132.3.221:8000/auth?email=${email}&password=${password}`,
+        `http://10.96.32.157:8000/auth?email=${email}&password=${password}`,
       );
       const result = await response.json();
 

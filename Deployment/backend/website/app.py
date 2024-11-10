@@ -112,7 +112,7 @@ async def get_heatmap():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM CurrentBusLocations WHERE BusID BETWEEN 1 AND 35")
+    cursor.execute("SELECT * FROM CurrentBusLocations WHERE BusID BETWEEN 1 AND 100")
     rows = cursor.fetchall()
     conn.close()
 

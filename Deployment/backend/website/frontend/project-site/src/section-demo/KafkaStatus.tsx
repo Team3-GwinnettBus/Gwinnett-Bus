@@ -54,9 +54,9 @@ export default function KafkaStatus() {
         const data = await response.json();
         setConsumerGroups(data.consumer_groups || []);
       } catch (err) {
-        setError(err.message);
+        console.log(err.message);
       } finally {
-        setLoading(false);
+        console.log("done");
       }
     };
 
@@ -79,7 +79,7 @@ export default function KafkaStatus() {
       setLagDataArr(lagDataArr.concat(lagData[0].lag));
       console.log(lagDataArr);
     } catch (err) {
-      setError(err.message);
+      console.log(err.message);
       setConsumerLag({});
     }
   };

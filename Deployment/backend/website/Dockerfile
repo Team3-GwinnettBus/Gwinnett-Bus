@@ -44,6 +44,8 @@ RUN curl https://packages.microsoft.com/config/rhel/8/prod.repo -o /etc/yum.repo
     dnf install -y msodbcsql18 mssql-tools && \
     dnf clean all
 
+RUN python3 --version && pip3 --version
+
 # Install Python 3.10 and pip
 RUN dnf module install -y python:3.10 && \
     python3 -m ensurepip && \

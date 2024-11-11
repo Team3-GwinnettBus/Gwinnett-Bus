@@ -9,6 +9,7 @@ export default function KafkaStatus() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [selectedGroupId, setSelectedGroupId] = useState("");
   const [consumerGroups, setConsumerGroups] = useState([]);
+  const [graphImage, setGraphImage] = useState(null);
 
   const BASE_URL = "http://10.96.32.157:8000";
 
@@ -21,14 +22,6 @@ export default function KafkaStatus() {
   // Fetch Kafka topics
   async function getKafkaTopics() {
     const response = await fetch(`${BASE_URL}/topics`);
-    return response.json();
-  }
-
-  // Fetch Kafka consumer lag for a specific topic and consumer group
-  async function getConsumerLag(topic, groupId) {
-    const response = await fetch(
-      `${BASE_URL}/consumer-lag?topic=${topic}&group_id=${groupId}`,
-    );
     return response.json();
   }
 
@@ -68,26 +61,24 @@ export default function KafkaStatus() {
     fetchConsumerGroups();
   }, []);
 
-  // Fetch Consumer Lag when topic and groupId are selected
-  const fetchLag = async () => {
-    if (selectedTopic && selectedGroupId) {
-      const lagData = await getConsumerLag(selectedTopic, selectedGroupId);
-      setConsumerLag(lagData);
-    }
-  };
+  useEffect(() => {
+    const fetchLagGraph = async () => {
+      try {
+        const response = await fetch(
+          "http://10.96.32.157:8000/consumer-lag-graph?topic=GCPS_Bus_Monitoring&group_id=bus-monitoring-group",
+        );
+        const data = await response.json();
+        setGraphImage(data.image);
+      } catch (error) {
+        console.error("Error fetching consumer lag graph:", error);
+      }
+    };
 
-  // Prepare data for Chart.js
-  const lagData = {
-    labels: Object.keys(consumerLag),
-    datasets: [
-      {
-        label: "Consumer Lag",
-        data: Object.values(consumerLag).map((item) => item.lag),
-        borderColor: "rgb(75, 192, 192)",
-        fill: false,
-      },
-    ],
-  };
+    // Fetch the graph initially and then every 1 minute
+    fetchLagGraph();
+    const intervalId = setInterval(fetchLagGraph, 60000); // 60000ms = 1 minute
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <div className="p-6 bg-background text-text rounded-lg shadow-lg space-y-6">
@@ -164,50 +155,19 @@ export default function KafkaStatus() {
         )}
       </div>
 
-      {/* Consumer Lag */}
-      <div className="p-4  rounded-md shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">Consumer Lag</h2>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Topic:</label>
-            <select
-              className="w-full p-2 rounded border border-border bg-background text-text"
-              value={selectedTopic}
-              onChange={(e) => setSelectedTopic(e.target.value)}
-            >
-              <option value="">Select Topic</option>
-              {topics.map((topic, index) => (
-                <option key={index} value={topic}>
-                  {topic}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Group ID:</label>
-            <input
-              className="w-full p-2 rounded border border-border bg-background text-text"
-              type="text"
-              value={selectedGroupId}
-              onChange={(e) => setSelectedGroupId(e.target.value)}
-            />
-          </div>
-
-          <button
-            className="w-full bg-accent text-background py-2 px-4 rounded-md mt-4 hover:bg-primary transition duration-400"
-            onClick={fetchLag}
-          >
-            Check Lag
-          </button>
-        </div>
-
-        {/* Consumer Lag Graph */}
-        {Object.keys(consumerLag).length > 0 && (
-          <div className="mt-6">
-            <h3 className="text-xl font-semibold mb-4">Lag Details</h3>
-            <Line data={lagData} options={{ maintainAspectRatio: false }} />
-          </div>
+      {/* here i want to add the api that returns a graph */}
+      <div className="p-6 bg-background text-text rounded-lg shadow-lg space-y-6">
+        <h1 className="text-2xl font-bold text-center">
+          Kafka Consumer Lag Graph
+        </h1>
+        {graphImage ? (
+          <img
+            src={graphImage}
+            alt="Kafka Consumer Lag"
+            className="mx-auto border border-border rounded-md"
+          />
+        ) : (
+          <p className="text-center text-accent">Loading graph...</p>
         )}
       </div>
     </div>

@@ -11,6 +11,7 @@ import threading
 import folium
 from folium.plugins import HeatMap
 from kafka import KafkaAdminClient, KafkaConsumer, TopicPartition
+import matplotlib.pyplot as plt
 
 # Creating a fastapi app
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -174,40 +175,71 @@ async def get_topics():
 
 
 
-@app.get("/consumer-lag")
-async def get_consumer_lag(topic: str, group_id: str):
-    consumer = KafkaConsumer(
-        bootstrap_servers=KAFKA_BROKER,
-        group_id=group_id,
-        enable_auto_commit=False
-    )
+@app.get("/consumer-lag-graph")
+async def get_consumer_lag_graph(topic: str, group_id: str):
+    try:
+        # Set up Kafka consumer with the specified group_id
+        consumer = KafkaConsumer(
+            bootstrap_servers=KAFKA_BROKER,
+            group_id=group_id,
+            enable_auto_commit=False
+        )
 
-    partitions = consumer.partitions_for_topic(topic)
-    if not partitions:
-        return {"error": f"No partitions found for topic {topic}"}
+        partitions = consumer.partitions_for_topic(topic)
+        if not partitions:
+            consumer.close()
+            raise HTTPException(status_code=404, detail=f"No partitions found for topic {topic}")
 
-    consumer_offsets = {}
-    for partition in partitions:
-        tp = TopicPartition(topic, partition)  # Create a TopicPartition object
-        consumer.assign([tp])  # Assign the TopicPartition to the consumer
+        # Collect lag data over the last minute
+        end_time = datetime.utcnow()
+        start_time = end_time - timedelta(minutes=1)
+        timestamps = []
+        lag_values = []
 
-        # Fetch the current offset for the consumer
-        consumer_position = consumer.position(tp)
+        for partition in partitions:
+            tp = TopicPartition(topic, partition)
+            consumer.assign([tp])
 
-        # Fetch the end offset (latest offset in the topic)
-        end_offset = consumer.end_offsets([tp])[tp]
+            # Gather data over the last minute
+            while datetime.utcnow() < end_time:
+                # Get the current offset and end offset for lag calculation
+                current_offset = consumer.position(tp)
+                end_offset = consumer.end_offsets([tp])[tp]
+                lag = end_offset - current_offset
 
-        # Calculate lag as the difference between the latest and current offsets
-        consumer_offsets[partition] = {
-            "current_offset": consumer_position,
-            "end_offset": end_offset,
-            "lag": end_offset - consumer_position
-        }
+                # Append the current time and lag to our data lists
+                timestamps.append(datetime.utcnow().strftime("%H:%M:%S"))
+                lag_values.append(lag)
 
-    # Close the consumer to release resources
-    consumer.close()
+                # Sleep briefly to gather more data points within the minute
+                await asyncio.sleep(5)  # Adjust as needed for more granularity
 
-    return consumer_offsets
+        consumer.close()
+
+        # Generate the lag graph using matplotlib
+        plt.figure(figsize=(10, 5))
+        plt.plot(timestamps, lag_values, marker="o", color="blue", label="Lag")
+        plt.xlabel("Time")
+        plt.ylabel("Lag")
+        plt.title(f"Consumer Lag over the Last Minute for Topic '{topic}' and Group '{group_id}'")
+        plt.xticks(rotation=45)
+        plt.legend()
+        plt.tight_layout()
+
+        # Save the plot to a bytes buffer and encode it as base64
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        plt.close()
+        buf.seek(0)
+        image_base64 = base64.b64encode(buf.read()).decode("utf-8")
+
+        # Return the base64-encoded image as a JSON response
+        return {"image": f"data:image/png;base64,{image_base64}"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 @app.get("/consumer-groups")
 async def get_consumer_groups():

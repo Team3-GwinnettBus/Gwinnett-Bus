@@ -17,4 +17,4 @@ WORKDIR /
 # Run any scripts on boot using CMD (for Flask server, SQL server, Kafka, or anything you want running off the bat)
 # Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]
 # CMD ["python3", "backend/consumer/app.py"]
-CMD ["./run.sh"]
+CMD ["ls"]

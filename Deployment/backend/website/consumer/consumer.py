@@ -8,8 +8,9 @@ def consumer_loop():
     # Kafka Consumer setup
     TOPICNAME = 'GCPS_Bus_Monitoring'
     SERVERIP = 'host.containers.internal:9092'
+    GROUP_ID = 'bus-monitoring-group'
 
-    consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP)
+    consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP, group_id=GROUP_ID, auto_offset_reset='earliest', enable_auto_commit=True)
 
     # Initialize DataManager to interact with the database
     db_manager = DataManager()

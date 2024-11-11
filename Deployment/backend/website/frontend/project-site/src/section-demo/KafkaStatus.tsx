@@ -141,7 +141,7 @@ export default function KafkaStatus() {
 
       {/* Kafka Groups Table */}
       <div className="p-4 rounded-md shadow-md">
-        <h2 className="text-2xl font-semibold mb-4">Topics</h2>
+        <h2 className="text-2xl font-semibold mb-4">Consumer Group ID</h2>
         {consumerGroups.length > 0 ? (
           <table className="min-w-full bg-background text-text border border-border shadow-md rounded-md">
             <thead className="bg-primary text-accent">

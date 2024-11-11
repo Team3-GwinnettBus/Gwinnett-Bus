@@ -30,10 +30,13 @@ ENV PYTHONUNBUFFERED=1
 
 # Install EPEL and update system packages
 RUN dnf install -y epel-release && \
-    dnf update -y && \
-    dnf install -y gcc unixODBC unixODBC-devel libffi-devel tar gzip make wget
+    dnf update -y
 
-# Install Python 3.10 from source
+# Install required development tools and libraries, including zlib
+RUN dnf install -y gcc make wget tar bzip2 bzip2-devel \
+    zlib zlib-devel openssl openssl-devel libffi-devel unixODBC unixODBC-devel
+
+# Download and install Python 3.10 from source
 RUN wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
     tar xvf Python-3.10.12.tgz && \
     cd Python-3.10.12 && \

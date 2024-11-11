@@ -11,6 +11,7 @@ export default function KafkaStatus() {
     "bus-monitoring-group",
   );
   const [consumerGroups, setConsumerGroups] = useState([]);
+  const [lagDataArr, setLagDataArr] = useState([]);
 
   const BASE_URL = "http://10.96.32.157:8000";
 
@@ -75,6 +76,8 @@ export default function KafkaStatus() {
 
       const lagData = await response.json();
       setConsumerLag(lagData);
+      setLagDataArr(lagDataArr.concat(lagData[0].lag));
+      console.log(lagDataArr);
     } catch (err) {
       setError(err.message);
       setConsumerLag({});
@@ -166,6 +169,19 @@ export default function KafkaStatus() {
       </div>
 
       {/* here i want to add the api that returns a graph */}
+      <div className="bg-card p-4 rounded-lg shadow-lg text-center space-y-2">
+        <h2 className="text-xl font-bold text-accent mb-2">Consumer Lag</h2>
+        {consumerLag[0] ? (
+          <div className="flex items-center justify-center space-x-4">
+            <span className="text-4xl font-semibold text-primary">
+              {consumerLag[0].lag}
+            </span>
+            <span className="text-lg text-gray-400">unprocessed messages</span>
+          </div>
+        ) : (
+          <p className="text-red-500">No data available</p>
+        )}
+      </div>
     </div>
   );
 }

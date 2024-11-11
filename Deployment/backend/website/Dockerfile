@@ -9,7 +9,7 @@ RUN apt-get update && \
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \
-    pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy folium matplotlib
+    pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy folium
 
 # Create working directory
 WORKDIR /app

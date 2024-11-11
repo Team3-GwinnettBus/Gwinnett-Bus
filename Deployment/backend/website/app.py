@@ -11,7 +11,6 @@ import threading
 import folium
 from folium.plugins import HeatMap
 from kafka import KafkaAdminClient, KafkaConsumer, TopicPartition
-import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import io
 import base64

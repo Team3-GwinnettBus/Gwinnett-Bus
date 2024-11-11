@@ -190,6 +190,7 @@ async def get_consumer_lag_graph(topic: str, group_id: str):
 
         partitions = consumer.partitions_for_topic(topic)
         if not partitions:
+            print("No partitions found for topic")
             return {"error": f"No partitions found for topic {topic}"}
 
         # Get data points for the last minute
@@ -203,11 +204,19 @@ async def get_consumer_lag_graph(topic: str, group_id: str):
         for partition in partitions:
             tp = TopicPartition(topic, partition)
             consumer.assign([tp])
+            print(f"Assigned to partition {partition}")
 
             while datetime.utcnow() < end_time:
+                # Fetch the current offset for the consumer
                 consumer_position = consumer.position(tp)
+                print(f"Consumer position for partition {partition}: {consumer_position}")
+
+                # Fetch the end offset (latest offset in the topic)
                 end_offset = consumer.end_offsets([tp])[tp]
+                print(f"End offset for partition {partition}: {end_offset}")
+
                 lag = end_offset - consumer_position
+                print(f"Calculated lag for partition {partition}: {lag}")
 
                 # Capture current time for this data point
                 current_time = datetime.utcnow()
@@ -216,6 +225,9 @@ async def get_consumer_lag_graph(topic: str, group_id: str):
 
                 # Print the timestamp and lag value for each point collected
                 print(f"Time: {current_time}, Lag: {lag}")
+
+        if not time_points:
+            print("No data points were collected.")
 
         # Plotting the graph
         plt.figure(figsize=(10, 5))
@@ -237,7 +249,9 @@ async def get_consumer_lag_graph(topic: str, group_id: str):
         return {"image": image_base64}
 
     except Exception as e:
+        print(f"Exception occurred: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 

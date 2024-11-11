@@ -201,6 +201,22 @@ async def get_consumer_lag(topic: str, group_id: str):
     return consumer_offsets
 
 
+@app.get("/consumer-groups")
+async def get_consumer_groups():
+    try:
+        # Connect to the Kafka broker
+        admin_client = KafkaAdminClient(bootstrap_servers=KAFKA_BROKER)
+
+        # List all consumer groups
+        groups = admin_client.list_consumer_groups()
+
+        # Extract just the group IDs from the response
+        group_ids = [group[0] for group in groups]  # Each group is a tuple (group_id, is_simple_consumer_group)
+
+        return {"consumer_groups": group_ids}
+    except Exception as e:
+        return {"error": str(e)}
+
 
 # serve frontend webpages
 @app.get("/{path:path}")

@@ -11,8 +11,8 @@ RUN pip install --upgrade pip && \
     pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
 
 # Copy all code and files to the /app directory
-COPY . . 
-WORKDIR /
+COPY . /Gwinnett-Bus 
+WORKDIR /Gwinnett-Bus
 
 # Run any scripts on boot using CMD (for Flask server, SQL server, Kafka, or anything you want running off the bat)
 # Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]

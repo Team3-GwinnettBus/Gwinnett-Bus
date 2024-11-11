@@ -28,17 +28,20 @@ FROM almalinux:8
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Install EPEL (Extra Packages for Enterprise Linux) and update system packages
+# Install EPEL and update system packages
 RUN dnf install -y epel-release && \
+    dnf config-manager --set-enabled powertools && \
     dnf update -y
 
-# Install Python 3.10 and necessary development tools
-RUN dnf module reset -y python36 && \
-    dnf module enable -y python:3.10 && \
-    dnf install -y python3.10 python3-pip gcc make wget tar bzip2 zlib-devel \
+# Install Python 3.10 and necessary tools
+RUN dnf install -y python39 python39-pip gcc make wget tar bzip2 zlib-devel \
     openssl openssl-devel libffi-devel unixODBC unixODBC-devel
 
-# Upgrade pip to the latest version
+# Create a symlink for python3.9 to python3
+RUN ln -s /usr/bin/python3.9 /usr/bin/python3 && \
+    ln -s /usr/bin/pip3.9 /usr/bin/pip3
+
+# Upgrade pip
 RUN pip3 install --upgrade pip
 
 # Install Python libraries

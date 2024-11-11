@@ -1,11 +1,14 @@
 # Use an official Python runtime as a base image
 FROM python:3.10-slim
 
-# Install system dependencies
+# Install system dependencies and Microsoft SQL Server ODBC Driver
 RUN apt-get update && \
-    apt-get install -y gcc unixodbc unixodbc-dev curl && \
+    apt-get install -y curl apt-transport-https gnupg && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+    curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+    apt-get update && \
+    ACCEPT_EULA=Y apt-get install -y msodbcsql18 unixodbc-dev gcc && \
     apt-get clean
-
 
 # Install Python dependencies
 RUN pip install --upgrade pip && \

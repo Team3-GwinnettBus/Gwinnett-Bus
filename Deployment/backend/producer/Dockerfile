@@ -22,30 +22,24 @@
 # # CMD ["python3", "backend/consumer/app.py"]
 # CMD ["python3", "datasim/bussimulation.py"]
 
-# Set redhat container image
+# Set AlmaLinux as the base image
 FROM almalinux:8
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Install EPEL and update system packages
+# Install EPEL (Extra Packages for Enterprise Linux) and update system packages
 RUN dnf install -y epel-release && \
     dnf update -y
 
-# Install required development tools and libraries, including zlib
-RUN dnf install -y gcc make wget tar bzip2 bzip2-devel \
-    zlib zlib-devel openssl openssl-devel libffi-devel unixODBC unixODBC-devel
+# Install Python 3.10 and necessary development tools
+RUN dnf module reset -y python36 && \
+    dnf module enable -y python:3.10 && \
+    dnf install -y python3.10 python3-pip gcc make wget tar bzip2 zlib-devel \
+    openssl openssl-devel libffi-devel unixODBC unixODBC-devel
 
-# Download and install Python 3.10 from source
-RUN wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
-    tar xvf Python-3.10.12.tgz && \
-    cd Python-3.10.12 && \
-    ./configure --enable-optimizations && \
-    make altinstall && \
-    ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
-    python3 -m ensurepip && \
-    pip3 install --upgrade pip && \
-    cd .. && rm -rf Python-3.10.12*
+# Upgrade pip to the latest version
+RUN pip3 install --upgrade pip
 
 # Install Python libraries
 RUN pip3 install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
@@ -56,5 +50,5 @@ WORKDIR /app
 # Copy the application code into the container
 COPY . /app
 
-# Run the default command
+# Run the Python script on container startup
 CMD ["python3", "datasim/bussimulation.py"]

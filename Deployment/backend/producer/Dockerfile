@@ -28,16 +28,21 @@ FROM almalinux:8
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Update system packages and install required system dependencies
-RUN dnf update -y && \
-    dnf install -y gcc unixODBC unixODBC-devel libffi-devel tar gzip && \
-    dnf clean all
+# Install EPEL and update system packages
+RUN dnf install -y epel-release && \
+    dnf update -y && \
+    dnf install -y gcc unixODBC unixODBC-devel libffi-devel tar gzip make wget
 
-# Install Python 3.10 from the default repositories
-RUN dnf module enable -y python:3.10 && \
-    dnf module install -y python:3.10 && \
+# Install Python 3.10 from source
+RUN wget https://www.python.org/ftp/python/3.10.12/Python-3.10.12.tgz && \
+    tar xvf Python-3.10.12.tgz && \
+    cd Python-3.10.12 && \
+    ./configure --enable-optimizations && \
+    make altinstall && \
+    ln -s /usr/local/bin/python3.10 /usr/bin/python3 && \
     python3 -m ensurepip && \
-    pip3 install --upgrade pip
+    pip3 install --upgrade pip && \
+    cd .. && rm -rf Python-3.10.12*
 
 # Install Python libraries
 RUN pip3 install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
@@ -48,5 +53,5 @@ WORKDIR /app
 # Copy the application code into the container
 COPY . /app
 
-# Run the default command to execute your Python script
+# Run the default command
 CMD ["python3", "datasim/bussimulation.py"]

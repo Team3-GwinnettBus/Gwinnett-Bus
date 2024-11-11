@@ -23,4 +23,4 @@ RUN cd ../Back-End/Producer/
 RUN ./bussim.sh &
 
 RUN cd ../../'(Optional)Front-End Monitoring'
-RUN python main.py  
+RUN ls 

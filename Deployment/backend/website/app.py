@@ -177,7 +177,6 @@ async def get_topics():
 @app.get("/consumer-lag")
 async def get_consumer_lag(topic: str, group_id: str):
     consumer = KafkaConsumer(
-        topic,
         bootstrap_servers=KAFKA_BROKER,
         group_id=group_id,
         enable_auto_commit=False
@@ -205,8 +204,10 @@ async def get_consumer_lag(topic: str, group_id: str):
             "lag": end_offset - consumer_position
         }
 
-    return consumer_offsets
+    # Close the consumer to release resources
+    consumer.close()
 
+    return consumer_offsets
 
 @app.get("/consumer-groups")
 async def get_consumer_groups():

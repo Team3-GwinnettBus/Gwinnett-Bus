@@ -21,3 +21,6 @@ RUN cd kafka_2.13-3.8.0
 RUN bin/kafka-server-start.sh config/kraft/server.properties &
 RUN cd ../Back-End/Producer/
 RUN ./bussim.sh &
+
+RUN cd ../../'(Optional)Front-End Monitoring'
+RUN python main.py  

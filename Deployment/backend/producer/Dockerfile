@@ -23,7 +23,7 @@
 # CMD ["python3", "datasim/bussimulation.py"]
 
 # Use Red Hat UBI with Python 3.11 as the base image
-FROM registry.access.redhat.com/ubi9/python-311
+FROM registry.access.redhat.com/ubi9/python-311-minimal
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1

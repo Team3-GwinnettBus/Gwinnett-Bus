@@ -27,22 +27,26 @@
 # CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 
 # Use Red Hat UBI with Python 3.11 as the base image
-FROM registry.access.redhat.com/ubi9/python-311
+FROM registry.access.redhat.com/ubi9/python-311-minimal
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies and Microsoft SQL Server ODBC Driver
-RUN dnf install -y \
-    curl wget gcc unixODBC unixODBC-devel openssl-devel libffi-devel && \
+# Ensure we are running as root
+USER root
+
+# Update the system and install required system dependencies
+RUN dnf update -y && \
+    dnf install -y gcc make wget tar zlib-devel \
+    openssl openssl-devel libffi-devel unixODBC unixODBC-devel curl && \
     dnf clean all
 
-# Add Microsoft repository for ODBC drivers
-RUN curl https://packages.microsoft.com/config/rhel/8/prod.repo -o /etc/yum.repos.d/mssql-release.repo && \
+# Install Microsoft SQL Server ODBC Driver
+RUN curl -o /etc/yum.repos.d/mssql-release.repo https://packages.microsoft.com/config/rhel/8/prod.repo && \
     ACCEPT_EULA=Y dnf install -y msodbcsql18 && \
     dnf clean all
 
-# Install Python dependencies
+# Install Python packages
 RUN pip install --upgrade pip && \
     pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy folium
 
@@ -55,5 +59,5 @@ COPY . /app
 # Expose port 8000 for FastAPI
 EXPOSE 8000
 
-# Run the FastAPI server
+# Set default command to run the FastAPI server
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

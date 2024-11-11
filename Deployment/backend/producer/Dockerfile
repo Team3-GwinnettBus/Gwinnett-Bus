@@ -1,57 +1,23 @@
-# # New docker file
-# # Update as you need
+# New docker file
+# Update as you need
 
-# # Specify the base image (for Python 3.10)
-# FROM python:3.10-slim
+# Specify the base image (for Python 3.10)
+FROM python:3.10-slim
 
-# # Install Python dependencies and system packages
-# RUN apt-get update && \
-#     apt-get install -y gcc unixodbc unixodbc-dev && \
-#     apt-get clean
-
-# # Install Python libraries
-# RUN pip install --upgrade pip && \
-#     pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
-
-# # Copy all code and files to the /app directory
-# COPY . /app
-# WORKDIR /app
-
-# # Run any scripts on boot using CMD (for Flask server, SQL server, Kafka, or anything you want running off the bat)
-# # Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]
-# # CMD ["python3", "backend/consumer/app.py"]
-# CMD ["python3", "datasim/bussimulation.py"]
-
-# Set AlmaLinux as the base image
-FROM almalinux:8
-
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-
-# Install EPEL and update system packages
-RUN dnf install -y epel-release && \
-    dnf config-manager --set-enabled powertools && \
-    dnf update -y
-
-# Install Python 3.10 and necessary tools
-RUN dnf install -y python39 python39-pip gcc make wget tar bzip2 zlib-devel \
-    openssl openssl-devel libffi-devel unixODBC unixODBC-devel
-
-# Create a symlink for python3.9 to python3
-RUN ln -s /usr/bin/python3.9 /usr/bin/python3 && \
-    ln -s /usr/bin/pip3.9 /usr/bin/pip3
-
-# Upgrade pip
-RUN pip3 install --upgrade pip
+# Install Python dependencies and system packages
+RUN apt-get update && \
+    apt-get install -y gcc unixodbc unixodbc-dev && \
+    apt-get clean
 
 # Install Python libraries
-RUN pip3 install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
+RUN pip install --upgrade pip && \
+    pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
 
-# Set the working directory
+# Copy all code and files to the /app directory
+COPY . /app
 WORKDIR /app
 
-# Copy the application code into the container
-COPY . /app
-
-# Run the Python script on container startup
+# Run any scripts on boot using CMD (for Flask server, SQL server, Kafka, or anything you want running off the bat)
+# Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]
+# CMD ["python3", "backend/consumer/app.py"]
 CMD ["python3", "datasim/bussimulation.py"]

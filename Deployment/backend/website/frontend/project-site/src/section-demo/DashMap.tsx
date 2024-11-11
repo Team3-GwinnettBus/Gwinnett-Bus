@@ -156,6 +156,9 @@ const DashMap = () => {
     // Bring bus markers to the front
     initialMarkers.forEach((marker) => marker.bringToFront());
 
+    // Zoom in a little to the map
+    leafletMap.zoomIn();
+
     return () => {
       leafletMap.remove();
     };
@@ -175,20 +178,47 @@ const DashMap = () => {
         buses.forEach((bus, index) => {
           if (index < markers.length) {
             const latLng = [bus.Latitude, bus.Longitude];
+
+            // Update marker position
             markers[index].setLatLng(latLng);
             markers[index].bindTooltip(`Bus ID: ${bus.BusID}`, {
               permanent: false,
               direction: "top",
               offset: [0, -10],
             });
+
+            // Update the radius circle position
             radiusCircles[index].setLatLng(latLng);
+
+            // Calculate the direction line based on the heading
+            const heading = bus.Heading;
+            const length = 0.001; // Adjust this value to change the length of the line
+            const radian = (heading * Math.PI) / 180;
+
+            // Calculate the endpoint of the line based on heading
+            const endLat = bus.Latitude + length * Math.cos(radian);
+            const endLng = bus.Longitude + length * Math.sin(radian);
+
+            // Add or update the polyline for direction
+            if (markers[index].directionLine) {
+              markers[index].directionLine.setLatLngs([
+                latLng,
+                [endLat, endLng],
+              ]);
+            } else {
+              const directionLine = L.polyline([latLng, [endLat, endLng]], {
+                color: "black",
+                weight: 2,
+              }).addTo(map);
+              markers[index].directionLine = directionLine;
+            }
           }
         });
       }
     }, 3000);
 
     return () => clearInterval(intervalId);
-  }, [markers, radiusCircles]);
+  }, [markers, radiusCircles, map]);
 
   return (
     <div className="flex flex-col md:flex-row h-screen bg-background">

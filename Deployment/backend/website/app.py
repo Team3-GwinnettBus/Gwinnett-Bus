@@ -10,6 +10,7 @@ from consumer.consumer import consumer_loop
 import threading
 import folium
 from folium.plugins import HeatMap
+from kafka import KafkaAdminClient, KafkaConsumer
 
 # Creating a fastapi app
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -23,6 +24,10 @@ app.add_middleware(
 )
 
 app.mount("/assets", StaticFiles(directory="assets"), name="static") # change this address to be correct place
+
+
+# Kafka connection point
+KAFKA_BROKER = 'host.containers.internal:9092'
 
 # Establish the database connection
 def get_db_connection():
@@ -139,6 +144,63 @@ async def get_heatmap():
     if locations:
         HeatMap(locations, radius=10, blur=15).add_to(m)
     return m._repr_html_()
+
+
+
+# functions for monitoring health of Kafka
+@app.get("/health")
+async def kafka_health():
+    try:
+        admin_client = KafkaAdminClient(bootstrap_servers=KAFKA_BROKER)
+        brokers = admin_client.describe_cluster()
+        return {
+            "status": "healthy",
+            "cluster_id": brokers['cluster_id'],
+            "brokers": brokers['brokers']
+        }
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
+
+
+@app.get("/topics")
+async def get_topics():
+    try:
+        admin_client = KafkaAdminClient(bootstrap_servers=KAFKA_BROKER)
+        topics = admin_client.list_topics()
+        return {"topics": topics}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+
+@app.get("/consumer-lag")
+async def get_consumer_lag(topic: str, group_id: str):
+    consumer = KafkaConsumer(
+        topic,
+        bootstrap_servers=KAFKA_BROKER,
+        group_id=group_id,
+        enable_auto_commit=False
+    )
+
+    partitions = consumer.partitions_for_topic(topic)
+    if not partitions:
+        return {"error": f"No partitions found for topic {topic}"}
+
+    consumer_offsets = {}
+    for partition in partitions:
+        tp = consumer.assignment().add(partition)
+        consumer_position = consumer.position(tp)
+        end_offset = consumer.end_offsets([tp])[tp]
+        consumer_offsets[partition] = {
+            "current_offset": consumer_position,
+            "end_offset": end_offset,
+            "lag": end_offset - consumer_position
+        }
+
+    return consumer_offsets
+
+
 
 # serve frontend webpages
 @app.get("/{path:path}")

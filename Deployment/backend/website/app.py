@@ -13,6 +13,8 @@ from folium.plugins import HeatMap
 from kafka import KafkaAdminClient, KafkaConsumer, TopicPartition
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
+import io
+import base64
 
 
 # Creating a fastapi app

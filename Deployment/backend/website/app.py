@@ -179,79 +179,40 @@ async def get_topics():
 
 
 
-@app.get("/consumer-lag-graph")
-async def get_consumer_lag_graph(topic: str, group_id: str):
-    try:
-        consumer = KafkaConsumer(
-            bootstrap_servers=KAFKA_BROKER,
-            group_id=group_id,
-            enable_auto_commit=False
-        )
+@app.get("/api/consumer-lag")
+async def get_consumer_lag(topic: str, group_id: str):
+    consumer = KafkaConsumer(
+        bootstrap_servers=KAFKA_BROKER,
+        group_id=group_id,
+        enable_auto_commit=False
+    )
 
-        partitions = consumer.partitions_for_topic(topic)
-        if not partitions:
-            print("No partitions found for topic")
-            return {"error": f"No partitions found for topic {topic}"}
+    partitions = consumer.partitions_for_topic(topic)
+    if not partitions:
+        return {"error": f"No partitions found for topic {topic}"}
 
-        # Get data points for the last minute
-        end_time = datetime.utcnow()
-        start_time = end_time - timedelta(minutes=1)
-        time_points = []
-        lag_points = []
+    consumer_offsets = {}
+    for partition in partitions:
+        tp = TopicPartition(topic, partition)  # Create a TopicPartition object
+        consumer.assign([tp])  # Assign the TopicPartition to the consumer
 
-        print("Collecting data points:")
+        # Fetch the current offset for the consumer
+        consumer_position = consumer.position(tp)
 
-        for partition in partitions:
-            tp = TopicPartition(topic, partition)
-            consumer.assign([tp])
-            print(f"Assigned to partition {partition}")
+        # Fetch the end offset (latest offset in the topic)
+        end_offset = consumer.end_offsets([tp])[tp]
 
-            while datetime.utcnow() < end_time:
-                # Fetch the current offset for the consumer
-                consumer_position = consumer.position(tp)
-                print(f"Consumer position for partition {partition}: {consumer_position}")
+        # Calculate lag as the difference between the latest and current offsets
+        consumer_offsets[partition] = {
+            "current_offset": consumer_position,
+            "end_offset": end_offset,
+            "lag": end_offset - consumer_position
+        }
 
-                # Fetch the end offset (latest offset in the topic)
-                end_offset = consumer.end_offsets([tp])[tp]
-                print(f"End offset for partition {partition}: {end_offset}")
+    # Close the consumer to release resources
+    consumer.close()
 
-                lag = end_offset - consumer_position
-                print(f"Calculated lag for partition {partition}: {lag}")
-
-                # Capture current time for this data point
-                current_time = datetime.utcnow()
-                time_points.append(current_time)
-                lag_points.append(lag)
-
-                # Print the timestamp and lag value for each point collected
-                print(f"Time: {current_time}, Lag: {lag}")
-
-        if not time_points:
-            print("No data points were collected.")
-
-        # Plotting the graph
-        plt.figure(figsize=(10, 5))
-        plt.plot(time_points, lag_points, color="blue", label="Lag")
-        plt.xlabel("Time")
-        plt.ylabel("Lag")
-        plt.title(f"Consumer Lag over the Last Minute for Topic '{topic}' and Group '{group_id}'")
-        plt.legend()
-        plt.xticks(rotation=45)
-
-        # Save to an in-memory buffer
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        plt.close()
-
-        # Encode the image to base64
-        image_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-        return {"image": image_base64}
-
-    except Exception as e:
-        print(f"Exception occurred: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
+    return consumer_offsets
 
 
 

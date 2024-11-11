@@ -6,10 +6,11 @@ export default function KafkaStatus() {
   const [healthStatus, setHealthStatus] = useState(null);
   const [topics, setTopics] = useState([]);
   const [consumerLag, setConsumerLag] = useState({});
-  const [selectedTopic, setSelectedTopic] = useState("");
-  const [selectedGroupId, setSelectedGroupId] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState("GCPS_Bus_Monitoring");
+  const [selectedGroupId, setSelectedGroupId] = useState(
+    "bus-monitoring-group",
+  );
   const [consumerGroups, setConsumerGroups] = useState([]);
-  const [graphImage, setGraphImage] = useState(null);
 
   const BASE_URL = "http://10.96.32.157:8000";
 
@@ -61,22 +62,31 @@ export default function KafkaStatus() {
     fetchConsumerGroups();
   }, []);
 
-  useEffect(() => {
-    const fetchLagGraph = async () => {
-      try {
-        const response = await fetch(
-          "http://10.96.32.157:8000/consumer-lag-graph?topic=GCPS_Bus_Monitoring&group_id=bus-monitoring-group",
-        );
-        const data = await response.json();
-        setGraphImage(data.image);
-      } catch (error) {
-        console.error("Error fetching consumer lag graph:", error);
-      }
-    };
+  // Function to fetch the consumer lag data from the API
+  const fetchConsumerLag = async () => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/api/consumer-lag?topic=${selectedTopic}&group_id=${selectedGroupId}`,
+      );
 
-    // Fetch the graph initially and then every 1 minute
-    fetchLagGraph();
-    const intervalId = setInterval(fetchLagGraph, 60000); // 60000ms = 1 minute
+      if (!response.ok) {
+        throw new Error("Failed to fetch consumer lag data");
+      }
+
+      const lagData = await response.json();
+      setConsumerLag(lagData);
+    } catch (err) {
+      setError(err.message);
+      setConsumerLag({});
+    }
+  };
+
+  // Fetch the lag data every 5 seconds
+  useEffect(() => {
+    fetchConsumerLag(); // Initial fetch
+    const intervalId = setInterval(fetchConsumerLag, 5000);
+
+    // Cleanup the interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
@@ -156,20 +166,6 @@ export default function KafkaStatus() {
       </div>
 
       {/* here i want to add the api that returns a graph */}
-      <div className="p-6 bg-background text-text rounded-lg shadow-lg space-y-6">
-        <h1 className="text-2xl font-bold text-center">
-          Kafka Consumer Lag Graph
-        </h1>
-        {graphImage ? (
-          <img
-            src={graphImage}
-            alt="Kafka Consumer Lag"
-            className="mx-auto border border-border rounded-md"
-          />
-        ) : (
-          <p className="text-center text-accent">Loading graph...</p>
-        )}
-      </div>
     </div>
   );
 }

@@ -12,6 +12,8 @@ import folium
 from folium.plugins import HeatMap
 from kafka import KafkaAdminClient, KafkaConsumer, TopicPartition
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+
 
 # Creating a fastapi app
 app = FastAPI(docs_url=None, redoc_url=None)

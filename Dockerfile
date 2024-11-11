@@ -18,3 +18,5 @@ WORKDIR /
 # Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]
 # CMD ["python3", "backend/consumer/app.py"]
 RUN ls
+RUN cd Gwinnett-Bus
+Run ./run.sh

@@ -12,7 +12,7 @@ RUN pip install --upgrade pip && \
 
 # Copy all code and files to the /app directory
 COPY . . 
-WORKDIR /Gwinnett-Bus
+WORKDIR /
 
 # Run any scripts on boot using CMD (for Flask server, SQL server, Kafka, or anything you want running off the bat)
 # Example - CMD ["name of program ex. python3", "name of script ex. any_script.py"]

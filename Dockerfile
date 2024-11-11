@@ -22,5 +22,5 @@ RUN bin/kafka-server-start.sh config/kraft/server.properties &
 RUN cd ../Back-End/Producer/
 RUN ./bussim.sh &
 
-RUN cd ../../'(Optional)Front-End Monitoring'
+RUN cd ../'(Optional)Front-End Monitoring'
 RUN ls 

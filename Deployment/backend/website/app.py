@@ -10,7 +10,7 @@ from consumer.consumer import consumer_loop
 import threading
 import folium
 from folium.plugins import HeatMap
-from kafka import KafkaAdminClient, KafkaConsumer
+from kafka import KafkaAdminClient, KafkaConsumer, TopicPartition
 
 # Creating a fastapi app
 app = FastAPI(docs_url=None, redoc_url=None)
@@ -189,9 +189,16 @@ async def get_consumer_lag(topic: str, group_id: str):
 
     consumer_offsets = {}
     for partition in partitions:
-        tp = consumer.assignment().add(partition)
+        tp = TopicPartition(topic, partition)  # Create a TopicPartition object
+        consumer.assign([tp])  # Assign the TopicPartition to the consumer
+
+        # Fetch the current offset for the consumer
         consumer_position = consumer.position(tp)
+
+        # Fetch the end offset (latest offset in the topic)
         end_offset = consumer.end_offsets([tp])[tp]
+
+        # Calculate lag as the difference between the latest and current offsets
         consumer_offsets[partition] = {
             "current_offset": consumer_position,
             "end_offset": end_offset,

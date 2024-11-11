@@ -26,3 +26,5 @@ WORKDIR /
 RUN kafka_2.13-3.8.0/bin/kafka-server-start.sh config/kraft/server.properties &
 RUN ../Back-End/Producer/bussim.sh &
 RUN python ../'(Optional)Front-End Monitoring'/main.py
+
+EXPOSE 3000

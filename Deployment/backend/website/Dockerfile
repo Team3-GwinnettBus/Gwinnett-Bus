@@ -26,27 +26,26 @@
 # # Run the FastAPI server
 # CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
 
-# Use Red Hat UBI 8 (Universal Base Image)
-FROM registry.access.redhat.com/ubi8/ubi:latest
+# Use redhat container image
+FROM almalinux:8
 
-# Set environment variables for Microsoft ODBC Driver installation
+# Set environment variables
 ENV ACCEPT_EULA=Y
-ENV PATH=$PATH:/opt/mssql-tools/bin
+ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies, Microsoft SQL Server ODBC Driver, and Python 3.9
+# Update system and install system dependencies
 RUN dnf update -y && \
-    dnf install -y \
-    python39 python39-devel \
-    unixODBC unixODBC-devel gcc gcc-c++ make curl tar && \
+    dnf install -y gcc unixODBC unixODBC-devel curl tar gzip libffi-devel && \
     dnf clean all
 
-# Install the Microsoft SQL Server ODBC Driver for RHEL 8
-RUN curl -o /tmp/msodbcsql18.rpm https://packages.microsoft.com/rhel/8/prod/msodbcsql18-18.2.1.1-1.x86_64.rpm && \
-    rpm -Uvh /tmp/msodbcsql18.rpm && \
-    rm -f /tmp/msodbcsql18.rpm
+# Install Microsoft SQL Server ODBC Driver
+RUN curl https://packages.microsoft.com/config/rhel/8/prod.repo -o /etc/yum.repos.d/mssql-release.repo && \
+    dnf update -y && \
+    dnf install -y msodbcsql18 mssql-tools && \
+    dnf clean all
 
-# Create a symbolic link for Python3
-RUN ln -s /usr/bin/python3.9 /usr/bin/python3 && \
+# Install Python 3.10 and pip
+RUN dnf module install -y python:3.10 && \
     python3 -m ensurepip && \
     pip3 install --upgrade pip
 

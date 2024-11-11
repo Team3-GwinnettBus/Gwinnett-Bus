@@ -182,7 +182,6 @@ async def get_topics():
 @app.get("/consumer-lag-graph")
 async def get_consumer_lag_graph(topic: str, group_id: str):
     try:
-        # Set up Kafka consumer with the specified group_id
         consumer = KafkaConsumer(
             bootstrap_servers=KAFKA_BROKER,
             group_id=group_id,
@@ -191,54 +190,51 @@ async def get_consumer_lag_graph(topic: str, group_id: str):
 
         partitions = consumer.partitions_for_topic(topic)
         if not partitions:
-            consumer.close()
-            raise HTTPException(status_code=404, detail=f"No partitions found for topic {topic}")
+            return {"error": f"No partitions found for topic {topic}"}
 
-        # Collect lag data over the last minute
+        # Get data points for the last minute
         end_time = datetime.utcnow()
         start_time = end_time - timedelta(minutes=1)
-        timestamps = []
-        lag_values = []
+        time_points = []
+        lag_points = []
+
+        print("Collecting data points:")
 
         for partition in partitions:
             tp = TopicPartition(topic, partition)
             consumer.assign([tp])
 
-            # Gather data over the last minute
             while datetime.utcnow() < end_time:
-                # Get the current offset and end offset for lag calculation
-                current_offset = consumer.position(tp)
+                consumer_position = consumer.position(tp)
                 end_offset = consumer.end_offsets([tp])[tp]
-                lag = end_offset - current_offset
+                lag = end_offset - consumer_position
 
-                # Append the current time and lag to our data lists
-                timestamps.append(datetime.utcnow().strftime("%H:%M:%S"))
-                lag_values.append(lag)
+                # Capture current time for this data point
+                current_time = datetime.utcnow()
+                time_points.append(current_time)
+                lag_points.append(lag)
 
-                # Sleep briefly to gather more data points within the minute
-                await asyncio.sleep(5)  # Adjust as needed for more granularity
+                # Print the timestamp and lag value for each point collected
+                print(f"Time: {current_time}, Lag: {lag}")
 
-        consumer.close()
-
-        # Generate the lag graph using matplotlib
+        # Plotting the graph
         plt.figure(figsize=(10, 5))
-        plt.plot(timestamps, lag_values, marker="o", color="blue", label="Lag")
+        plt.plot(time_points, lag_points, color="blue", label="Lag")
         plt.xlabel("Time")
         plt.ylabel("Lag")
         plt.title(f"Consumer Lag over the Last Minute for Topic '{topic}' and Group '{group_id}'")
-        plt.xticks(rotation=45)
         plt.legend()
-        plt.tight_layout()
+        plt.xticks(rotation=45)
 
-        # Save the plot to a bytes buffer and encode it as base64
+        # Save to an in-memory buffer
         buf = io.BytesIO()
         plt.savefig(buf, format="png")
-        plt.close()
         buf.seek(0)
-        image_base64 = base64.b64encode(buf.read()).decode("utf-8")
+        plt.close()
 
-        # Return the base64-encoded image as a JSON response
-        return {"image": f"data:image/png;base64,{image_base64}"}
+        # Encode the image to base64
+        image_base64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        return {"image": image_base64}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -22,14 +22,18 @@
 # # CMD ["python3", "backend/consumer/app.py"]
 # CMD ["python3", "datasim/bussimulation.py"]
 
-# Use Red Hat UBI with Python 3.11
+# Use Red Hat UBI with Python 3.11 as the base image
 FROM registry.access.redhat.com/ubi9/python-311
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 
-# Install required system dependencies
-RUN dnf install -y gcc make wget tar zlib-devel \
+# Ensure we are running as root
+USER root
+
+# Update the system and install required system dependencies
+RUN dnf update -y && \
+    dnf install -y gcc make wget tar zlib-devel \
     openssl openssl-devel libffi-devel unixODBC unixODBC-devel && \
     dnf clean all
 
@@ -43,8 +47,5 @@ WORKDIR /app
 # Copy the application code into the container
 COPY . /app
 
-# Expose the application port
-EXPOSE 8000
-
-# Run the application
-CMD ["python", "datasim/bussimulation.py"]
+# Set default command to run the application
+CMD ["python3", "datasim/bussimulation.py"]

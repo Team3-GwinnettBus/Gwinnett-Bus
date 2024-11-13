@@ -12,3 +12,5 @@ To stop, remove, and cleanup pod and its containers:
 Note:
 Modify what containers are running inside pod.yml under containers by commenting out unneeded containers
 Hosted at http://10.96.32.157:8000/
+Use port 3000 for database dashboard
+Use port 9000 for Kafka dashboard

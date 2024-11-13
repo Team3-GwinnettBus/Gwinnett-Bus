@@ -52,6 +52,23 @@ spec:
         - containerPort: 9000
           # hostPort: 9000 # Expose Kafdrop on port 9000
 
+    - name: dbgate
+      image: dbgate/dbgate:latest
+      ports:
+        - containerPort: 3002
+          # hostPort: 3002
+      env:
+        - name: DB_GATE_DEFAULT_DRIVER
+          value: "mssql"
+        - name: DB_GATE_DEFAULT_SERVER
+          value: "10.96.32.157"
+        - name: DB_GATE_DEFAULT_DATABASE
+          value: "GCPS_Bus"
+        - name: DB_GATE_DEFAULT_USER
+          value: "SA"
+        - name: DB_GATE_DEFAULT_PASSWORD
+          value: "HootyHoo!"
+
   volumes:
     - name: entitlement-volume
       hostPath:

@@ -1,25 +1,22 @@
 import json
-from kafka import KafkaProducer
-
-# fixes import errors
-# pip install --break-system-packages git+https://github.com/dpkp/kafka-python.git
+from confluent_kafka import Producer
 
 TOPIC = 'GCPS_Bus_Monitoring'
 SERVER = 'localhost:9092'
 
-producer = KafkaProducer(
-    bootstrap_servers=SERVER,
-    client_id='Gwinnett-Bus',
-    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+config = {
+    'bootstrap.servers': SERVER,
+    'client.id': 'Gwinnett-Bus',
+    'value_serializer': lambda v: json.dumps(v).encode('utf-8'),
+    'linger_ms': 50,
+    'batch.size': 64 * 1024  # 64KB
+}
 
-    # These values aren't final, additional testing needed
-    linger_ms=50,  # 50 ms delay to batch messages
-    batch_size=32 * 1024  # 32KB batch size
-)
+producer = Producer(config)
 
 
 def send_data(data):
-    producer.send(TOPIC, data)
+    producer.produce(TOPIC, value=data)
 
 
 def flush():

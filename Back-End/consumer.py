@@ -1,9 +1,18 @@
-from kafka import KafkaConsumer
+from confluent_kafka import Consumer
+import json
 
-TOPICNAME = 'GCPS_Bus_Monitoring'
-SERVERIP = 'localhost:9092'
+TOPIC = 'GCPS_Bus_Monitoring'
+SERVER = 'localhost:9092'
 
-consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP)
+config = {
+    'bootstrap.servers': SERVER
+}
 
-for messages in consumer:
-    print(messages)
+consumer = Consumer(config)
+consumer.subscribe(TOPIC)
+
+while True:
+    msg = consumer.poll(1.0)
+    if msg:
+        msg_text = json.loads(msg.value().decode('utf-8'))
+        print("Consumed event from bus {id}".format(id=msg_text['BusID']))

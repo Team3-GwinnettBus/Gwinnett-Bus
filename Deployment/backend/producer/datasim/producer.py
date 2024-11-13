@@ -12,10 +12,8 @@ producer = KafkaProducer(
     bootstrap_servers=SERVER,
     client_id='SimpleBusSimulation',
     value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-
-    # These values aren't final, additional testing needed
-    linger_ms=50,  # 50 ms delay to batch messages
-    batch_size=32 * 1024  # 32KB batch size
+    linger_ms=20,  # Lower delay for faster message delivery, adjust if needed
+    batch_size=64 * 1024,  # 64KB batch size for better batching
 )
 
 def send_data(data):

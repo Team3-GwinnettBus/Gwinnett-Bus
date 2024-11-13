@@ -10,7 +10,15 @@ def consumer_loop():
     SERVERIP = 'host.containers.internal:9092'
     GROUP_ID = 'bus-monitoring-group'
 
-    consumer = KafkaConsumer(TOPICNAME, bootstrap_servers=SERVERIP, group_id=GROUP_ID, auto_offset_reset='earliest', enable_auto_commit=True)
+    consumer = KafkaConsumer(
+        TOPICNAME, bootstrap_servers=SERVERIP,
+        group_id=GROUP_ID,
+        auto_offset_reset='latest',
+        enable_auto_commit=True,
+        auto_commit_interval_ms=2000,  # Commit offsets every 2 seconds
+        session_timeout_ms=10000,  # 10-second session timeout
+        max_poll_records=1000,  # Fetch up to 500 records at once for higher throughput
+    )
 
     # Initialize DataManager to interact with the database
     db_manager = DataManager()

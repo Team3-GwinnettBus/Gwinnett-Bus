@@ -18,6 +18,7 @@ kind: Pod
 metadata:
   name: bus-project-pod
 spec:
+  hostNetwork: true
   containers:
     - name: bus-project-producer
       image: localhost/bus-project-producer
@@ -33,7 +34,7 @@ spec:
       image: localhost/bus-project-web
       ports:
         - containerPort: 8000
-          hostPort: 8000
+          # hostPort: 8000
       volumeMounts:
         - mountPath: /etc/pki/entitlement
           name: entitlement-volume
@@ -41,6 +42,15 @@ spec:
           name: rhsm-volume
         - mountPath: /etc/yum.repos.d
           name: yum-repos-volume
+
+    - name: kafdrop
+      image: docker.io/obsidiandynamics/kafdrop:latest
+      env:
+        - name: KAFKA_BROKERCONNECT
+          value: "localhost:9092" # Change this if your Kafka broker is using a different IP
+      ports:
+        - containerPort: 9000
+          # hostPort: 9000 # Expose Kafdrop on port 9000
 
   volumes:
     - name: entitlement-volume

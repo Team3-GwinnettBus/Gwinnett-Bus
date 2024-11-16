@@ -13,7 +13,7 @@
 
 # # Install Python dependencies
 # RUN pip install --upgrade pip && \
-#     pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy folium
+#     pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy folium confluent-kafka
 
 # # Create working directory
 # WORKDIR /app
@@ -52,7 +52,7 @@ RUN curl -o /etc/yum.repos.d/mssql-release.repo https://packages.microsoft.com/c
 
 # Install Python packages
 RUN pip install --upgrade pip && \
-    pip install fastapi uvicorn pyodbc kafka-python==2.0.2 simpy folium
+    pip install fastapi uvicorn pyodbc simpy folium kafka-python==2.0.2 confluent-kafka
 
 # Set the working directory
 WORKDIR /app

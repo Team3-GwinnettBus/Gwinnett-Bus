@@ -12,7 +12,7 @@
 
 # # Install Python libraries
 # RUN pip install --upgrade pip && \
-#     pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
+#     pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn confluent-kafka
 
 # # Copy all code and files to the /app directory
 # COPY . /app
@@ -42,7 +42,7 @@ RUN dnf update -y && \
 
 # Install Python packages
 RUN pip install --upgrade pip && \
-    pip install pyodbc networkx osmnx kafka-python==2.0.2 simpy scikit-learn
+    pip install pyodbc networkx osmnx simpy scikit-learn confluent-kafka
 
 # Set the working directory
 WORKDIR /app

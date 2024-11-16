@@ -1,6 +1,6 @@
 # call on start of webserver
 
-from kafka import KafkaConsumer
+from confluent_kafka import Consumer
 import json
 from .database.datamanager import DataManager  # Import DataManager
 
@@ -10,15 +10,18 @@ def consumer_loop():
     SERVERIP = 'host.containers.internal:9092'
     GROUP_ID = 'bus-monitoring-group'
 
-    consumer = KafkaConsumer(
-        TOPICNAME, bootstrap_servers=SERVERIP,
-        group_id=GROUP_ID,
-        auto_offset_reset='latest',
-        enable_auto_commit=True,
-        auto_commit_interval_ms=2000,  # Commit offsets every 2 seconds
-        session_timeout_ms=10000,  # 10-second session timeout
-        max_poll_records=1000,  # Fetch up to 500 records at once for higher throughput
-    )
+    config = {
+        'bootstrap.servers': SERVERIP,
+        'group.id': GROUP_ID,
+        'auto.offset.reset': 'latest',
+        'enable.auto.commit': True,
+        'auto.commit.interval.ms': 2000,  # Commit offsets every 2 seconds
+        'session.timeout.ms': 10000,      # 10-second session timeout
+        'max.poll.interval.ms': 300000,   # Max interval for processing
+    }
+
+    consumer = Consumer(config)
+    consumer.subscribe([TOPICNAME])
 
     # Initialize DataManager to interact with the database
     db_manager = DataManager()
@@ -27,7 +30,7 @@ def consumer_loop():
     def process_message(message):
         try:
             # Parse the message (assuming JSON format)
-            bus_data = json.loads(message.value.decode('utf-8'))
+            bus_data = json.loads(message.value().decode('utf-8'))
             print(f"Received bus data: {bus_data}")
 
             # Prepare the data to insert into the database
@@ -49,8 +52,14 @@ def consumer_loop():
             print(f"Error processing message: {e}")
 
     # Consume messages from Kafka
-    for message in consumer:
-        process_message(message)
+    # for message in consumer:
+    #     process_message(message)
+
+    while True:
+        msg = consumer.poll(1.0)
+        if msg:
+            process_message(msg)
 
     # Close the connection to the database
+    consumer.close()
     db_manager.close_connection_db()

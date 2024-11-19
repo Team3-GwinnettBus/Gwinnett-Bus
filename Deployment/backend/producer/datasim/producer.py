@@ -1,52 +1,27 @@
 import json
 import time
-from kafka import KafkaProducer
-# from datasim.simpledatasim import Bus
-# from datasim.bussim import Bus
+from confluent_kafka import Producer
 
 # Kafka Producer setup
 TOPIC = 'GCPS_Bus_Monitoring'
 SERVER = 'host.containers.internal:9092'
 
-producer = KafkaProducer(
-    bootstrap_servers=SERVER,
-    client_id='SimpleBusSimulation',
-    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
-    linger_ms=20,  # Lower delay for faster message delivery, adjust if needed
-    batch_size=64 * 1024,  # 64KB batch size for better batching
-)
+config = {
+    'bootstrap.servers': SERVER,
+    'client.id': 'Gwinnett-Bus',
+    # 'value.serializer': lambda v: json.dumps(v).encode('utf-8'),
+    'linger.ms': 50,
+    'batch.size': 64 * 1024
+}
+
+producer = Producer(config)
 
 def send_data(data):
     """Send the bus data to Kafka."""
-    producer.send(TOPIC, value=data)
+    # producer.send(TOPIC, value=data)
+    # id = data['asset']['id'] # use for key
+    value = json.dumps(data).encode('utf-8')
+    producer.produce(TOPIC, value=value)
 
 def flush():
     producer.flush()
-
-# # Create an instance of the Bus simulation
-# bus = Bus(asset_id=1)  # You can change the asset_id as needed
-
-# # Simulation loop to send bus data every second
-# for _ in range(150):  # Simulate for 150 seconds (adjust as necessary)
-#     bus.update_location()
-#     data = bus.get_data()
-#     send_data(producer, TOPIC, data)
-#     time.sleep(1)  # Wait for 1 second before sending the next update
-
-# # Ensure all messages are sent to Kafka before exiting
-# producer.flush()
-# print("Bus simulation complete.")
-
-
-# # Create a Bus instance
-# bus = Bus(producer, TOPIC)
-
-# # Simulation loop to send data every second
-# for _ in range(150):  # Simulate for 30 seconds
-#     bus.updateCoordinates()
-#     bus.send_data()
-#     time.sleep(1)  # Wait for 1 second before sending the next data
-
-# # Ensure all messages are flushed to Kafka before exiting
-# producer.flush()
-# print("Simulation complete")

@@ -69,6 +69,32 @@ spec:
         - name: DB_GATE_DEFAULT_PASSWORD
           value: "HootyHoo!"
 
+    - name: control-center
+      image: confluentinc/cp-enterprise-control-center:latest
+      ports:
+        - containerPort: 9021
+      env:
+        - name: CONTROL_CENTER_BOOTSTRAP_SERVERS
+          value: "localhost:9092"
+        - name: CONTROL_CENTER_REPLICATION_FACTOR
+          value: "1"
+        - name: CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS
+          value: "1"
+        - name: CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS
+          value: "1"
+        - name: CONTROL_CENTER_REST_LISTENERS
+          value: "http://0.0.0.0:9021"
+        - name: CONTROL_CENTER_METRIC_REPORTERS
+          value: "io.confluent.telemetry.reporter.TelemetryReporter"
+        - name: CONTROL_CENTER_TELEMETRY_ENABLED
+          value: "true"
+        - name: CONTROL_CENTER_TELEMETRY_API_KEY
+          value: "CCGBF5ZWW52NDMM7"
+        - name: CONTROL_CENTER_TELEMETRY_API_SECRET
+          value: "Qw8of7ksIe84Y+bMTjvvJIbvNVnjJwDAIaFvitDxpsn257HeVBcdzkYy+7Q6Hdh3"
+        - name: CONTROL_CENTER_TELEMETRY_ENABLED
+          value: "true"
+
   volumes:
     - name: entitlement-volume
       hostPath:

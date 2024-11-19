@@ -35,14 +35,14 @@ def consumer_loop():
 
             # Prepare the data to insert into the database
             data = {
-                'BusID': bus_data['asset']['id'],  # Updated to get the ID from 'asset'
-                'latitude': bus_data['location']['latitude'],
-                'longitude': bus_data['location']['longitude'],
-                'speed': bus_data['speed']['gpsSpeedMetersPerSecond'],
-                'heading': bus_data['location']['headingDegrees'],
-                'GeoFence': 'none',  # Example placeholder
-                'GPSTime': bus_data['happenedAtTime'],
-                'Accuracy': bus_data['location']['accuracyMeters']
+                'BusID': bus_data['BusID'],  # Directly access 'BusID'
+                'latitude': bus_data['latitude'],  # Access 'latitude'
+                'longitude': bus_data['longitude'],  # Access 'longitude'
+                'speed': bus_data['speed'],  # Access 'speed'
+                'heading': bus_data['heading'],  # Access 'heading'
+                'GeoFence': bus_data.get('geofence', 'none'),  # Use 'geofence' or default to 'none'
+                'GPSTime': bus_data['GPS_Time'],  # Access 'GPS_Time'
+                'Accuracy': bus_data['accuracy'],  # Access 'accuracy'
             }
 
             # Insert the data using DataManager

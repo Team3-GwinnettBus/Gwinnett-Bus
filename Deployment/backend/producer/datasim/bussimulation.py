@@ -35,20 +35,23 @@ with open(edge_data_path, 'rb') as f:
 #     nodes = list(network.nodes())
 #     return networkx.shortest_path(network, random.choice(nodes), random.choice(nodes))
 
-MAX_PATH_LENGTH = 5000  # Meters
+MAX_PATH_LENGTH = 10000  # Meters
+UPDATE_INTERVAL = 5  # Seconds
 
 class Bus:
-    def __init__(self, asset_id, update_queue):
+    def __init__(self, asset_id, update_queue, active_bus_count, completion_event):
         self.school_id = None
         self.route_completed = False
+        self.active_bus_count = active_bus_count
+        self.completion_event = completion_event
 
         self.asset_id = {
-            "id": asset_id
+            "BusID": asset_id
         }
         self.update_queue = update_queue
         self.location = {}
 
-        speed = random.randint(20, 25)
+        speed = random.randint(10, 15)
         self.speed = {
             "gpsSpeedMetersPerSecond": speed,
             "ecuSpeedMetersPerSecond": speed
@@ -62,7 +65,12 @@ class Bus:
         while not self.route_completed:
             self.update_location()
             await self.update_queue.put(self.get_data())
-            await asyncio.sleep(5)
+            await asyncio.sleep(UPDATE_INTERVAL)
+
+        self.active_bus_count -= 1
+        print(self.active_bus_count)
+        if self.active_bus_count == 0:
+            self.completion_event.set()
 
     # Generate a random path from a random school
     def get_path(self):
@@ -90,14 +98,12 @@ class Bus:
             edge = edges.get((path[-1], next_node))
             length += edge['length']
             path.append(next_node)
-            print("Length:", length)
 
-        print(path)
         return path
 
     def update_location(self):
-        # Calculate how far vehicle traveled in past 5 seconds
-        self.distance_along_edge += self.speed['gpsSpeedMetersPerSecond'] * 5
+        # Calculate how far vehicle traveled in past interval
+        self.distance_along_edge += self.speed['gpsSpeedMetersPerSecond'] * UPDATE_INTERVAL
 
         # Check if bus finished path
         while self.current_node < len(self.path) - 1:
@@ -141,7 +147,7 @@ class Bus:
                 self.distance_along_edge = 0.0
             else:
                 # End bus travel
-                print("Route Completed for", self.asset_id)
+                print("Route Completed for bus", self.asset_id['BusID'])
                 self.route_completed = True
 
     # Return data as formatted in Samsara API
@@ -149,10 +155,14 @@ class Bus:
         global current_time
 
         return {
-            "happenedAtTime": current_time.isoformat(timespec='seconds'),
-            "asset": self.asset_id,
-            "location": self.location,
-            "speed": self.speed
+            "BusID": self.asset_id["BusID"],
+            "latitude": self.location["latitude"],
+            "longitude": self.location["longitude"],
+            "heading": self.location["headingDegrees"],
+            "accuracy": self.location["accuracyMeters"],
+            "speed": self.speed["gpsSpeedMetersPerSecond"],
+            "geofence": "Geofence",
+            "GPS_Time": current_time.isoformat(timespec='seconds')
         }
 
 
@@ -161,13 +171,13 @@ class DataCollector:
         self.update_queue = update_queue
 
     # Fetch all updates from update queue and process each update for each iteration
-    async def run(self):
-        while True:
+    async def run(self, completion_event):
+        while not completion_event.is_set():
             updates = []
             while not self.update_queue.empty():
                 updates.append(await self.update_queue.get())
             self.process_updates(updates)
-            await asyncio.sleep(5)
+            await asyncio.sleep(UPDATE_INTERVAL)
 
     # Send each bus data to Kafka producer
     @staticmethod
@@ -177,7 +187,7 @@ class DataCollector:
             send_data(update)
 
             # Prints bus data of bus 1 for debugging
-            if update['asset'] == {"id": 1}:
+            if update['BusID'] == 1:
                 print(update)
 
         flush()
@@ -190,16 +200,15 @@ def find_school_nodes():
             school_nodes.append(node)
 
 
-async def start_clock():
+async def start_clock(completion_event):
     global current_time
 
     # Initialize time to 6:15 AM EST
     current_time = datetime.now(timezone.utc).replace(hour=11, minute=15)
 
     # Start clock
-    while True:
+    while not completion_event.is_set():
         await asyncio.sleep(1)
-
         current_time += timedelta(seconds=1)
 
 
@@ -208,19 +217,21 @@ async def main():
 
     update_queue = asyncio.Queue()
     num_buses = 100
+    active_bus_count = num_buses
 
-    timing_task = asyncio.create_task(start_clock())
+    completion_event = asyncio.Event()
 
-    buses = [Bus(i + 1, update_queue) for i in range(num_buses)]
+    timing_task = asyncio.create_task(start_clock(completion_event))
+
+    buses = [Bus(i + 1, update_queue, active_bus_count, completion_event) for i in range(num_buses)]
     bus_tasks = [asyncio.create_task(bus.run()) for bus in buses]
 
     collector = DataCollector(update_queue)
-    collector_task = asyncio.create_task(collector.run())
+    collector_task = asyncio.create_task(collector.run(completion_event))
 
     await asyncio.gather(*bus_tasks, collector_task)
 
     print("Simulation Complete")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

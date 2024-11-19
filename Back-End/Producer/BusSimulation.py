@@ -23,6 +23,7 @@ with open('MapData/edge_data.pkl', 'rb') as f:
     edges = pickle.load(f)
 
 MAX_PATH_LENGTH = 10000  # Meters
+UPDATE_INTERVAL = 5  # Seconds
 
 
 class Bus:
@@ -52,7 +53,7 @@ class Bus:
         while not self.route_completed:
             self.update_location()
             await self.update_queue.put(self.get_data())
-            await asyncio.sleep(5)
+            await asyncio.sleep(UPDATE_INTERVAL)
 
         self.active_bus_count -= 1
         print(self.active_bus_count)
@@ -89,8 +90,8 @@ class Bus:
         return path
 
     def update_location(self):
-        # Calculate how far vehicle traveled in past 5 seconds
-        self.distance_along_edge += self.speed['gpsSpeedMetersPerSecond'] * 5
+        # Calculate how far vehicle traveled in past interval
+        self.distance_along_edge += self.speed['gpsSpeedMetersPerSecond'] * UPDATE_INTERVAL
 
         # Check if bus finished path
         while self.current_node < len(self.path) - 1:
@@ -164,7 +165,7 @@ class DataCollector:
             while not self.update_queue.empty():
                 updates.append(await self.update_queue.get())
             self.process_updates(updates)
-            await asyncio.sleep(5)
+            await asyncio.sleep(UPDATE_INTERVAL)
 
     # Send each bus data to Kafka producer
     @staticmethod

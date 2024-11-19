@@ -119,8 +119,32 @@ function Home() {
               </div>
             </CarouselItem>
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
+          <CarouselPrevious
+            style={{
+              background: "white",
+              fontSize: "2rem",
+              position: "absolute",
+              left: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+          >
+            &lt;
+          </CarouselPrevious>
+          <CarouselNext
+            style={{
+              background: "white",
+              fontSize: "2rem",
+              position: "absolute",
+              right: "10px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              cursor: "pointer",
+            }}
+          >
+            &gt;
+          </CarouselNext>
         </Carousel>
       </LargeCard>
     </div>
